@@ -20,6 +20,42 @@ class _WorkflowIOInputBase:
     FUNCTION = "run"
 
 
+# How the deployed app lets users set a value. Same term ComfyUI uses for its
+# own number widgets ("display": "number" | "slider"). The first option is the
+# default.
+NUMBER_DISPLAY_OPTIONS = ["number", "slider"]
+BOOL_DISPLAY_OPTIONS = ["on/off", "toggle"]
+
+
+def display_widget(options, tooltip):
+    """The ``display`` widget (Int, Float and Bool inputs).
+
+    Added after the shared metadata block, never before it: saved UI workflows
+    store widget values by position, so a widget inserted earlier would shift
+    every later value in existing workflows. Older workflows simply load with
+    the default (the first option). Declared optional: API workflows saved before
+    it existed don't carry it, and ComfyUI rejects a run missing a required input.
+    """
+    return (list(options), {"default": options[0], "tooltip": tooltip})
+
+
+def number_display_widget():
+    return display_widget(
+        NUMBER_DISPLAY_OPTIONS,
+        "How users set this value in the deployed app: 'number' = a number box they type in "
+        "or step up/down, 'slider' = a slider they drag between min and max "
+        "(set min and max to the real range).",
+    )
+
+
+def bool_display_widget():
+    return display_widget(
+        BOOL_DISPLAY_OPTIONS,
+        "How users set this value in the deployed app: 'on/off' = two buttons, On and Off, "
+        "they pick between, 'toggle' = a switch they flip.",
+    )
+
+
 class WorkflowIOTextInput(_WorkflowIOInputBase):
     """String parameter (single or multi-line)."""
 
@@ -41,7 +77,7 @@ class WorkflowIOTextInput(_WorkflowIOInputBase):
 
 
 class WorkflowIOIntInput(_WorkflowIOInputBase):
-    """Integer parameter with optional min/max/step."""
+    """Integer parameter with optional min/max/step and a number/slider display."""
 
     @classmethod
     def INPUT_TYPES(cls):
@@ -55,7 +91,9 @@ class WorkflowIOIntInput(_WorkflowIOInputBase):
                                 "tooltip": "Maximum accepted value (documented + validated)."}),
                 "step": ("INT", {"default": 1, "min": 1, "tooltip": "Step hint for the caller UI."}),
                 **{k: v for k, v in meta_widgets().items() if k != "param_name"},
-            }
+            },
+            # Optional, so API workflows saved before it existed still validate.
+            "optional": {"display": number_display_widget()},
         }
 
     RETURN_TYPES = ("INT",)
@@ -66,7 +104,7 @@ class WorkflowIOIntInput(_WorkflowIOInputBase):
 
 
 class WorkflowIOFloatInput(_WorkflowIOInputBase):
-    """Float parameter with optional min/max/step."""
+    """Float parameter with optional min/max/step and a number/slider display."""
 
     @classmethod
     def INPUT_TYPES(cls):
@@ -78,7 +116,9 @@ class WorkflowIOFloatInput(_WorkflowIOInputBase):
                 "max": ("FLOAT", {"default": 1.0, "tooltip": "Maximum accepted value."}),
                 "step": ("FLOAT", {"default": 0.01, "tooltip": "Step hint for the caller UI."}),
                 **{k: v for k, v in meta_widgets().items() if k != "param_name"},
-            }
+            },
+            # Optional, so API workflows saved before it existed still validate.
+            "optional": {"display": number_display_widget()},
         }
 
     RETURN_TYPES = ("FLOAT",)
@@ -89,7 +129,7 @@ class WorkflowIOFloatInput(_WorkflowIOInputBase):
 
 
 class WorkflowIOBoolInput(_WorkflowIOInputBase):
-    """Boolean parameter."""
+    """Boolean parameter with an on/off or toggle display."""
 
     @classmethod
     def INPUT_TYPES(cls):
@@ -98,7 +138,9 @@ class WorkflowIOBoolInput(_WorkflowIOInputBase):
                 "param_name": meta_widgets()["param_name"],
                 "value": ("BOOLEAN", {"default": False}),
                 **{k: v for k, v in meta_widgets().items() if k != "param_name"},
-            }
+            },
+            # Optional, so API workflows saved before it existed still validate.
+            "optional": {"display": bool_display_widget()},
         }
 
     RETURN_TYPES = ("BOOLEAN",)
@@ -224,7 +266,7 @@ class WorkflowIOImageInput(_WorkflowIOInputBase):
                     "default": "png,jpg,jpeg,webp",
                     "tooltip": "Comma-separated accepted upload formats (documentation + validation hint).",
                 }),
-                "max_size_mb": ("INT", {"default": 20, "min": 1, "max": 500,
+                "max_size_mb": ("INT", {"default": 100, "min": 1, "max": 500,
                                         "tooltip": "Maximum accepted upload size in MB."}),
                 **{k: v for k, v in meta_widgets().items() if k != "param_name"},
             }
@@ -233,7 +275,7 @@ class WorkflowIOImageInput(_WorkflowIOInputBase):
     RETURN_TYPES = ("IMAGE", "MASK")
     RETURN_NAMES = ("image", "mask")
 
-    def run(self, param_name, value, accepted_formats="", max_size_mb=20, **_meta):
+    def run(self, param_name, value, accepted_formats="", max_size_mb=100, **_meta):
         import numpy as np
         import torch
         from PIL import Image, ImageOps
