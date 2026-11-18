@@ -41,9 +41,12 @@ Each meaning lists the **kinds** of value it applies to (`enum`, `int`, `float`)
 | `degrees` | int, float | An angle in degrees |
 | `frame_count` | int | An exact number of video frames |
 
-A meaning describes the value, never the widget: `strength` lets Brand Brain choose a slider, but the node does not say "slider". The vocabulary is shared, so the parser and mapping editor can check a pair (Float + `aspect_ratio` is never valid) against the same table.
+**Rules**
 
-The vocabulary is **append-only**, per kind. You may **add** a new meaning, or a new kind on an existing meaning; **never remove, rename, or reorder** meanings, and **never take a kind away** from one. ComfyUI checks a saved `value_type` against that node's own list, so either change would break saved graphs of that kind. If a meaning changes, add a new type and treat the old one as legacy in the app—do not edit the list in place.
+- A meaning describes the value, never the widget: `strength`, not "slider". Brand Brain picks the control.
+- Filter by kind, never by node. A new input declares its kind (`enum`, `int`, `float`); don't give a node class its own list or ask authors to pick a type. The table grows with meanings, not with nodes.
+- Add a meaning only when a real workflow needs it.
+- Append-only, per kind: add meanings, or kinds to a meaning; never remove, rename, reorder, or take a kind away. ComfyUI rejects a saved value that is no longer in a node's list.
 
 ## How data flows
 
