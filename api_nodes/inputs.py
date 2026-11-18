@@ -41,7 +41,8 @@ class WorkflowIOTextInput(_WorkflowIOInputBase):
 
 
 class WorkflowIOIntInput(_WorkflowIOInputBase):
-    """Integer parameter with optional min/max/step."""
+    """Integer parameter with optional min/max/step. The optional ``value_type``
+    says what the value means (see ``common.VALUE_TYPES``)."""
 
     @classmethod
     def INPUT_TYPES(cls):
@@ -55,7 +56,8 @@ class WorkflowIOIntInput(_WorkflowIOInputBase):
                                 "tooltip": "Maximum accepted value (documented + validated)."}),
                 "step": ("INT", {"default": 1, "min": 1, "tooltip": "Step hint for the caller UI."}),
                 **{k: v for k, v in meta_widgets().items() if k != "param_name"},
-            }
+            },
+            "optional": value_type_widget("int"),
         }
 
     RETURN_TYPES = ("INT",)
@@ -66,7 +68,8 @@ class WorkflowIOIntInput(_WorkflowIOInputBase):
 
 
 class WorkflowIOFloatInput(_WorkflowIOInputBase):
-    """Float parameter with optional min/max/step."""
+    """Float parameter with optional min/max/step. The optional ``value_type``
+    says what the value means (see ``common.VALUE_TYPES``)."""
 
     @classmethod
     def INPUT_TYPES(cls):
@@ -78,7 +81,8 @@ class WorkflowIOFloatInput(_WorkflowIOInputBase):
                 "max": ("FLOAT", {"default": 1.0, "tooltip": "Maximum accepted value."}),
                 "step": ("FLOAT", {"default": 0.01, "tooltip": "Step hint for the caller UI."}),
                 **{k: v for k, v in meta_widgets().items() if k != "param_name"},
-            }
+            },
+            "optional": value_type_widget("float"),
         }
 
     RETURN_TYPES = ("FLOAT",)
@@ -130,7 +134,7 @@ class WorkflowIOEnumInput(_WorkflowIOInputBase):
                 }),
                 **{k: v for k, v in meta_widgets().items() if k != "param_name"},
             },
-            "optional": value_type_widget(),
+            "optional": value_type_widget("enum"),
         }
 
     # Wildcard so the choice can drive COMBO inputs (sampler_name, scheduler,
@@ -170,7 +174,7 @@ class WorkflowIOMultiEnumInput(_WorkflowIOInputBase):
                     "default": ",",
                     "tooltip": "How the downstream node splits the value it receives.",
                 }),
-                **value_type_widget(),
+                **value_type_widget("enum"),
             },
         }
 

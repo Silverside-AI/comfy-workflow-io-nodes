@@ -23,8 +23,8 @@ auto-build the entire `api_config`.
 | Node | Output | Notes |
 |------|--------|-------|
 | Workflow IO Text Input | STRING | single/multi-line |
-| Workflow IO Int Input | INT | min/max/step |
-| Workflow IO Float Input | FLOAT | min/max/step |
+| Workflow IO Int Input | INT | min/max/step; optional `value_type` (`none`, `strength`, `degrees`, `frame_count`) says what the value means |
+| Workflow IO Float Input | FLOAT | min/max/step; optional `value_type` (`none`, `strength`, `degrees`) says what the value means |
 | Workflow IO Bool Input | BOOLEAN | |
 | Workflow IO Enum Input | STRING | `options` (one per line or comma-separated) → API enum allowlist; optional `value_type` (`none`, `aspect_ratio`) says what each option means |
 | Workflow IO Multi Enum Input | STRING | several `options` at once, joined by the optional `separator` (default `,`); optional `value_type` as above |

@@ -32,25 +32,44 @@ ANY_TYPE = _AnyType("*")
 # Bumped when the widget contract changes so the parser can branch on it.
 NODE_SCHEMA = "1"
 
-# What a value means, so the app can show it appropriately (aspect_ratio: ratios
-# like 16:9, drawn as shapes). One vocabulary for every node that declares it.
-# Only add to it: ComfyUI rejects a saved value that is no longer in the list.
-VALUE_TYPES = ("none", "aspect_ratio")
+# What a value means, so the app can show it appropriately. One vocabulary for
+# every node that declares it: meaning -> (kinds of value it applies to, what it
+# says). A node offers only the meanings for its kind, so an Enum never shows
+# "strength" and a Float never shows "aspect_ratio".
+# Only add: a new meaning, or a new kind on an existing one. Never remove,
+# rename, reorder or take a kind away: ComfyUI rejects a saved value that is no
+# longer in that node's list.
+VALUE_TYPES = {
+    "none": (("enum", "int", "float"), "no particular meaning"),
+    "aspect_ratio": (("enum",), "ratios like 16:9, drawn as shapes"),
+    "strength": (("int", "float"), "an amount judged by eye between min and max"),
+    "degrees": (("int", "float"), "an angle in degrees"),
+    "frame_count": (("int",), "an exact number of video frames"),
+}
 
 
-def value_type_widget() -> dict:
+def value_types_for(kind: str) -> list:
+    """The meanings a node of this kind offers, in vocabulary order."""
+    return [name for name, (kinds, _) in VALUE_TYPES.items() if kind in kinds]
+
+
+def value_type_widget(kind: str) -> dict:
     """The optional ``value_type`` widget, for a node's ``optional`` section.
 
-    Optional so workflows saved before a node had it keep passing ComfyUI's
-    validation; a missing value means ``none``.
+    ``kind`` is the node's kind of value (``enum``, ``int`` or ``float``); the
+    dropdown lists only the meanings that apply to it. Optional so workflows
+    saved before a node had it keep passing ComfyUI's validation; a missing
+    value means ``none``.
     """
+    names = value_types_for(kind)
+    subject = "each option" if kind == "enum" else "the value"
+    meanings = "; ".join(f"{name}: {VALUE_TYPES[name][1]}" for name in names if name != "none")
     return {
         "value_type": (
-            list(VALUE_TYPES),
+            names,
             {
                 "default": "none",
-                "tooltip": "What each value means, so the app can show it appropriately "
-                "(aspect_ratio: ratios like 16:9, drawn as shapes).",
+                "tooltip": f"What {subject} means, so the app can show it appropriately ({meanings}).",
             },
         ),
     }

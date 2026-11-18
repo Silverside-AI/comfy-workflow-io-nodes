@@ -21,7 +21,7 @@ Input **classes** (Text, Int, Enum, …) name data types. They do not say how ch
 |----------------------------|------------------|-------------------------|
 | **Workflow IO Multi Enum Input** (or `multiple: true` on the mapping) | Several options at once | Multi picker |
 | `separator` | How the downstream node splits the string value | How to join picks when calling the API |
-| `value_type` (e.g. `aspect_ratio`) | What each option **means** | Which control to use (e.g. ratio shapes instead of plain labels) |
+| `value_type` (e.g. `aspect_ratio`, `strength`) | What each option, or a number, **means** | Which control to use (e.g. ratio shapes instead of plain labels; a slider for a strength) |
 
 Do **not** add to Workflow IO nodes: grid area names, Svelte widget ids, colours, or CSS hints.
 
@@ -29,9 +29,21 @@ Do **not** add to Workflow IO nodes: grid area names, Svelte widget ids, colours
 
 ## `value_type` vocabulary
 
-Allowed meanings live in `VALUE_TYPES` in `api_nodes/common.py` and surface as an optional widget on Enum and Multi Enum nodes (default `none`).
+Allowed meanings live in `VALUE_TYPES` in `api_nodes/common.py` and surface as an optional widget (default `none`) on Enum, Multi Enum, Int and Float nodes. On an Enum it says what each option means; on a number, what the value means.
 
-The list is **append-only**. You may **add** new meanings; **never remove, rename, or reorder** entries. ComfyUI rejects saved graphs whose `value_type` is no longer in the list. If a meaning changes, add a new type and treat the old one as legacy in the app—do not edit the list in place.
+Each meaning lists the **kinds** of value it applies to (`enum`, `int`, `float`), and a node's dropdown shows only the meanings for its kind:
+
+| Meaning | Kinds | What it says |
+|---------|-------|--------------|
+| `none` | enum, int, float | No particular meaning (default) |
+| `aspect_ratio` | enum | Ratios like 16:9 |
+| `strength` | int, float | An amount judged by eye between `min` and `max` |
+| `degrees` | int, float | An angle in degrees |
+| `frame_count` | int | An exact number of video frames |
+
+A meaning describes the value, never the widget: `strength` lets Brand Brain choose a slider, but the node does not say "slider". The vocabulary is shared, so the parser and mapping editor can check a pair (Float + `aspect_ratio` is never valid) against the same table.
+
+The vocabulary is **append-only**, per kind. You may **add** a new meaning, or a new kind on an existing meaning; **never remove, rename, or reorder** meanings, and **never take a kind away** from one. ComfyUI checks a saved `value_type` against that node's own list, so either change would break saved graphs of that kind. If a meaning changes, add a new type and treat the old one as legacy in the app—do not edit the list in place.
 
 ## How data flows
 
