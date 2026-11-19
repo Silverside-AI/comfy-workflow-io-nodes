@@ -15,9 +15,13 @@ tree (or ``--head <ref>``) and compares them:
 * a widget inserted before, or moved among, existing ones (saved UI workflows
   store widget values by position);
 * an output removed or reordered (saved links point at output indexes);
-* ``VALUE_TYPES`` in ``api_nodes/common.py``: a meaning removed, renamed or
-  reordered, or a meaning losing a kind (append-only, per kind). Handles both
-  the tuple form and the ``meaning -> (kinds, description)`` dict form.
+* ``VALUE_TYPES`` in ``api_nodes/common.py``: a meaning removed or renamed, or
+  a meaning losing a kind. Handles both the tuple form and the
+  ``meaning -> (kinds, description)`` dict form.
+
+Warns, without failing, when ``VALUE_TYPES`` meanings are reordered or a new one
+is inserted mid-list: the contract doc asks for append-only, but ComfyUI checks
+a saved value by membership, not position, so no saved workflow breaks.
 
 Plain Python, no ComfyUI and no third-party packages. ``comfy_api`` (imported
 inside the Video Output node's ``INPUT_TYPES``) is replaced by a stub whose
@@ -35,6 +39,7 @@ Usage:
 import argparse
 import importlib.util
 import io
+import os
 import subprocess
 import sys
 import tarfile
@@ -173,28 +178,31 @@ def _normalise_value_types(vt):
     return {k: None for k in vt}
 
 
-def _check_value_types(base_vt, head_vt) -> list:
+def _check_value_types(base_vt, head_vt) -> tuple:
+    """-> (errors, warnings)"""
     base, head = _normalise_value_types(base_vt), _normalise_value_types(head_vt)
     if base is None:
-        return []
+        return [], []
     if head is None:
-        return ["VALUE_TYPES: removed from api_nodes/common.py"]
-    errs = []
+        return ["VALUE_TYPES: removed from api_nodes/common.py"], []
+    errs, warns = [], []
     bk, hk = list(base), list(head)
     if hk[:len(bk)] != bk:
         lost = [k for k in bk if k not in head]
         if lost:
             errs.append(f"VALUE_TYPES: meaning(s) removed or renamed: {lost}")
         else:
-            errs.append(f"VALUE_TYPES: meanings reordered or inserted mid-list: {bk} -> {hk}; append new ones at the end")
+            warns.append(f"VALUE_TYPES: meanings reordered or inserted mid-list: {bk} -> {hk}. "
+                         "Saved workflows still validate, but the contract asks to append new ones at the end")
     for meaning, kinds in base.items():
         new = head.get(meaning)
         if kinds is not None and new is not None and not kinds <= new:
             errs.append(f"VALUE_TYPES['{meaning}']: lost kind(s) {sorted(kinds - new)}")
-    return errs
+    return errs, warns
 
 
-def compare(base_dir: Path, head_dir: Path) -> list:
+def compare(base_dir: Path, head_dir: Path) -> tuple:
+    """-> (errors, warnings)"""
     _install_stubs()
     base_nodes, base_vt = _load(base_dir, "_contract_base")
     head_nodes, head_vt = _load(head_dir, "_contract_head")
@@ -205,8 +213,8 @@ def compare(base_dir: Path, head_dir: Path) -> list:
             errs.append(f"{name}: node class removed (saved workflows reference it by class_type)")
             continue
         errs += _check_node(name, _describe(base_cls), _describe(head_cls))
-    errs += _check_value_types(base_vt, head_vt)
-    return errs
+    vt_errs, warns = _check_value_types(base_vt, head_vt)
+    return errs + vt_errs, warns
 
 
 def main(argv=None) -> int:
@@ -221,9 +229,12 @@ def main(argv=None) -> int:
         tmp = Path(tmp)
         base_dir = _extract_ref(root, args.base, tmp / "base")
         head_dir = _extract_ref(root, args.head, tmp / "head") if args.head else root / PACKAGE_DIR
-        errs = compare(base_dir, head_dir)
+        errs, warns = compare(base_dir, head_dir)
 
     head_label = args.head or "working tree"
+    for w in warns:
+        # In GitHub Actions, also annotate the PR.
+        print(f"::warning title=Contract check::{w}" if os.environ.get("GITHUB_ACTIONS") else f"Warning: {w}")
     if errs:
         print(f"Contract check FAILED ({head_label} vs {args.base}): these changes would break saved workflows.\n")
         for e in errs:
