@@ -1,0 +1,26 @@
+{
+  "widgets": [
+    "param_name",
+    "value",
+    "min",
+    "max",
+    "step",
+    "required",
+    "description",
+    "example",
+    "advanced",
+    "group",
+    "order",
+    "value_type"
+  ],
+  "outputs": [
+    "INT"
+  ],
+  "saved": {
+    "defaults": {"param_name": "", "value": 0, "min": 0, "max": 2147483647, "step": 1, "required": true, "description": "", "example": "", "advanced": false, "group": "", "order": 0},
+    "value_type=none": {"param_name": "", "value": 0, "min": 0, "max": 2147483647, "step": 1, "required": true, "description": "", "example": "", "advanced": false, "group": "", "order": 0, "value_type": "none"},
+    "value_type=strength": {"param_name": "", "value": 0, "min": 0, "max": 2147483647, "step": 1, "required": true, "description": "", "example": "", "advanced": false, "group": "", "order": 0, "value_type": "strength"},
+    "value_type=degrees": {"param_name": "", "value": 0, "min": 0, "max": 2147483647, "step": 1, "required": true, "description": "", "example": "", "advanced": false, "group": "", "order": 0, "value_type": "degrees"},
+    "value_type=frame_count": {"param_name": "", "value": 0, "min": 0, "max": 2147483647, "step": 1, "required": true, "description": "", "example": "", "advanced": false, "group": "", "order": 0, "value_type": "frame_count"}
+  }
+}

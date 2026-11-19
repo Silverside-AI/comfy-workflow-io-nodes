@@ -1,0 +1,28 @@
+# Changelog
+
+Changes that affect workflows built with these nodes (new nodes, inputs,
+dropdown options, `value_type` meanings, anything Brand Brain must handle) and
+how this repo checks them. Newest first, one line per pull request, under the
+date it was written. Doc wording, refactors and test-only changes aren't listed; see
+the git log.
+
+A date here isn't a deploy date: the runner and editor run whatever `main` was
+when their image was built.
+
+## 2026-11-19
+
+- Int and Float inputs: optional `value_type`, what the value means (Int: `strength`, `degrees`, `frame_count`; Float: `strength`, `degrees`). Each node lists only the meanings for its kind. Saved workflows unaffected. ([#6](https://github.com/aw93silverside/comfy-workflow-io-nodes/pull/6))
+- CI: every pull request checks that workflows saved in prod still validate, against fixtures in `tests/fixtures/` (one file per node). ([#7](https://github.com/aw93silverside/comfy-workflow-io-nodes/pull/7), [#8](https://github.com/aw93silverside/comfy-workflow-io-nodes/pull/8))
+
+## 2026-11-13
+
+- Contract doc (`docs/comfy-json-ui-contract.md`) and contributor skill: `value_type` meanings are append-only. ([#3](https://github.com/aw93silverside/comfy-workflow-io-nodes/pull/3))
+- New Multi Enum Input node (several options at once, joined by `separator`), and optional `value_type` (`none`, `aspect_ratio`) on Enum and Multi Enum: what each option means. ([#2](https://github.com/aw93silverside/comfy-workflow-io-nodes/pull/2))
+
+## 2026-11-11
+
+- New 3D Output node: saves FILE_3D (GLB, glTF, FBX, OBJ, STL) in its own format and reports it under the `3d` UI key, which the Brand Brain parser must read. ([#1](https://github.com/aw93silverside/comfy-workflow-io-nodes/pull/1))
+
+## 2026-11-10
+
+- Video Output: optional `codec` (auto, h264, av1, prores; ComfyUI 0.44+) and a wirable `video_format` input (MP4, ProRes, WebM, MKV, auto) that overrides format and codec. On older ComfyUI the container picks the codec; only ProRes errors. (`ec173e4`, `2af81be`)

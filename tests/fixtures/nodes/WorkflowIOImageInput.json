@@ -1,0 +1,21 @@
+{
+  "widgets": [
+    "param_name",
+    "value",
+    "accepted_formats",
+    "max_size_mb",
+    "required",
+    "description",
+    "example",
+    "advanced",
+    "group",
+    "order"
+  ],
+  "outputs": [
+    "IMAGE",
+    "MASK"
+  ],
+  "saved": {
+    "defaults": {"param_name": "", "value": "", "accepted_formats": "png,jpg,jpeg,webp", "max_size_mb": 20, "required": true, "description": "", "example": "", "advanced": false, "group": "", "order": 0}
+  }
+}

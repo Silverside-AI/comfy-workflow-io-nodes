@@ -1,0 +1,17 @@
+{
+  "widgets": [
+    "output_name",
+    "filename_template",
+    "format",
+    "include"
+  ],
+  "outputs": [
+    "IMAGE"
+  ],
+  "saved": {
+    "defaults": {"images": ["upstream", 0], "output_name": "image", "filename_template": "", "format": "png", "include": true},
+    "format=png": {"images": ["upstream", 0], "output_name": "image", "filename_template": "", "format": "png", "include": true},
+    "format=jpg": {"images": ["upstream", 0], "output_name": "image", "filename_template": "", "format": "jpg", "include": true},
+    "format=webp": {"images": ["upstream", 0], "output_name": "image", "filename_template": "", "format": "webp", "include": true}
+  }
+}
