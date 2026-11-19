@@ -31,7 +31,7 @@ Do **not** add to Workflow IO nodes: grid area names, Svelte widget ids, colours
 
 Allowed meanings live in `VALUE_TYPES` in `api_nodes/common.py` and surface as an optional widget on Enum and Multi Enum nodes (default `none`).
 
-The list is **append-only**. You may **add** new meanings; **never remove, rename, or reorder** entries. ComfyUI rejects saved graphs whose `value_type` is no longer in the list. If a meaning changes, add a new type and treat the old one as legacy in the app—do not edit the list in place.
+The list is **append-only**. You may **add** new meanings, at the end; **never remove or rename** entries. ComfyUI rejects saved graphs whose `value_type` is no longer in the list. Reordering breaks no saved workflow (ComfyUI checks a saved value by membership, not position), but it reshuffles every node's dropdown, so avoid it. If a meaning changes, add a new type and treat the old one as legacy in the app—do not edit the list in place.
 
 ## How data flows
 
