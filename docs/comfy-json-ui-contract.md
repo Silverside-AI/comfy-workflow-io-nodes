@@ -29,22 +29,14 @@ Do **not** add to Workflow IO nodes: grid area names, Svelte widget ids, colours
 
 ## `value_type` vocabulary
 
-Allowed meanings live in `VALUE_TYPES` in `api_nodes/common.py` and surface as an optional widget (default `none`) on Enum, Multi Enum, Int and Float nodes. On an Enum it says what each option means; on a number, what the value means.
+`value_type` says what a value means, so Brand Brain can show it appropriately. It's an optional widget (default `none`) on Enum, Multi Enum, Int and Float nodes: on an Enum it says what each option means; on a number, what the value means.
 
-Each meaning lists the **kinds** of value it applies to (`enum`, `int`, `float`), and a node's dropdown shows only the meanings for its kind:
-
-| Meaning | Kinds | What it says |
-|---------|-------|--------------|
-| `none` | enum, int, float | No particular meaning (default) |
-| `aspect_ratio` | enum | Ratios like 16:9 |
-| `strength` | int, float | An amount judged by eye between `min` and `max` |
-| `degrees` | int, float | An angle in degrees |
-| `frame_count` | int | An exact number of video frames |
+The meanings live in [`VALUE_TYPES`](../api_nodes/common.py) in `api_nodes/common.py`, the single list to read or add to. Each entry gives the **kinds** of value it applies to (`enum`, `int`, `float`) and what it says, and a node's dropdown offers only the meanings for its kind.
 
 **Rules**
 
 - A meaning describes the value, never the widget: `strength`, not "slider". Brand Brain picks the control.
-- Filter by kind, never by node. A new input declares its kind (`enum`, `int`, `float`); don't give a node class its own list or ask authors to pick a type. The table grows with meanings, not with nodes.
+- Filter by kind, never by node. A new input declares its kind (`enum`, `int`, `float`); don't give a node class its own list or ask authors to pick a type. `VALUE_TYPES` grows with meanings, not with nodes.
 - Add a meaning only when a real workflow needs it.
 - Append-only, per kind: add meanings, or kinds to a meaning; never remove, rename, or take a kind away. ComfyUI rejects a saved value that is no longer in a node's list.
 - Add new meanings at the end. Reordering breaks no saved workflow (ComfyUI checks a saved value by membership, not position), but it reshuffles every node's dropdown.
