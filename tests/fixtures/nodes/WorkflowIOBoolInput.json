@@ -1,0 +1,18 @@
+{
+  "widgets": [
+    "param_name",
+    "value",
+    "required",
+    "description",
+    "example",
+    "advanced",
+    "group",
+    "order"
+  ],
+  "outputs": [
+    "BOOLEAN"
+  ],
+  "saved": {
+    "defaults": {"param_name": "", "value": false, "required": true, "description": "", "example": "", "advanced": false, "group": "", "order": 0}
+  }
+}

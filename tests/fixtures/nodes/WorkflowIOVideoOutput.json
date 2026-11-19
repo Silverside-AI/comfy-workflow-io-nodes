@@ -1,0 +1,15 @@
+{
+  "widgets": [
+    "output_name",
+    "filename_template",
+    "format",
+    "include",
+    "codec"
+  ],
+  "outputs": [
+    "VIDEO"
+  ],
+  "saved": {
+    "defaults": {"video": ["upstream", 0], "output_name": "video", "filename_template": "", "format": "auto", "include": true, "codec": "auto"}
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "widgets": [
+    "param_name",
+    "value",
+    "min",
+    "max",
+    "step",
+    "required",
+    "description",
+    "example",
+    "advanced",
+    "group",
+    "order"
+  ],
+  "outputs": [
+    "INT"
+  ],
+  "saved": {
+    "defaults": {"param_name": "", "value": 0, "min": 0, "max": 2147483647, "step": 1, "required": true, "description": "", "example": "", "advanced": false, "group": "", "order": 0}
+  }
+}
