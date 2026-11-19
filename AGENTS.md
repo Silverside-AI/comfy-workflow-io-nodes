@@ -6,4 +6,4 @@ Before changing **`VALUE_TYPES`** or **`value_type`**, follow:
 
 - [.cursor/skills/push-changes/SKILL.md](.cursor/skills/push-changes/SKILL.md)
 
-Repo facts: default branch **`main`**; CI runs `tests/test_saved_workflows.py` on pull requests: node changes must keep the fixtures in `tests/fixtures/` validating; see the push-changes skill. Contract changes affect saved workflows and downstream parsers—keep diffs small and backward compatible.
+Repo facts: default branch **`main`**; CI runs `tests/test_saved_workflows.py` on pull requests: node changes must keep the fixtures in `tests/fixtures/` validating; see the push-changes skill. Node changes add a line to `CHANGELOG.md`. Contract changes affect saved workflows and downstream parsers—keep diffs small and backward compatible.
