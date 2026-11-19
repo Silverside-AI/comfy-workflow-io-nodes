@@ -1,0 +1,11 @@
+# Optional: `pip install pre-commit && pre-commit install` runs the saved-workflow
+# tests before each commit that touches the nodes or the fixtures.
+repos:
+  - repo: local
+    hooks:
+      - id: saved-workflows
+        name: Saved workflows still validate
+        entry: python3 tests/test_saved_workflows.py
+        language: system
+        files: ^(api_nodes|tests)/
+        pass_filenames: false

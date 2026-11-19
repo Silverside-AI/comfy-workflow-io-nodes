@@ -91,4 +91,16 @@ Contributors: [docs/comfy-json-ui-contract.md](docs/comfy-json-ui-contract.md) a
 ```bash
 # contract smoke test (no ComfyUI needed — heavy imports are lazy inside run())
 python3 -c "from api_nodes import NODE_CLASS_MAPPINGS; print(len(NODE_CLASS_MAPPINGS))"
+
+# saved-workflow tests: fail on node changes that break workflows already saved in prod
+python3 tests/test_saved_workflows.py
+python3 tests/update_fixtures.py   # after adding a node, input, dropdown option or VALUE_TYPES meaning
 ```
+
+Node changes must be additive: the runner validates every stored workflow
+against the node definitions it has installed. `tests/fixtures/` holds workflows
+known to work (`workflows/*.json`, including a generated `coverage.json` with
+every node and dropdown option) and each node's widgets and outputs in order
+(`widget_order.json`). The tests, run on every pull request and optionally as a
+pre-commit hook, check them the way ComfyUI does. Fixtures only grow: never
+edit or delete one to make a test pass. Plain Python, no ComfyUI needed.
