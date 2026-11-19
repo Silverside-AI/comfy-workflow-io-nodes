@@ -11,6 +11,7 @@ when their image was built.
 
 ## 2026-11-19
 
+- Int and Float inputs: optional `value_type`, what the value means (Int: `strength`, `degrees`, `frame_count`; Float: `strength`, `degrees`). Each node lists only the meanings for its kind. Saved workflows unaffected. ([#6](https://github.com/aw93silverside/comfy-workflow-io-nodes/pull/6))
 - CI: every pull request checks that workflows saved in prod still validate, against fixtures in `tests/fixtures/` (one file per node). ([#7](https://github.com/aw93silverside/comfy-workflow-io-nodes/pull/7), [#8](https://github.com/aw93silverside/comfy-workflow-io-nodes/pull/8))
 
 ## 2026-11-13

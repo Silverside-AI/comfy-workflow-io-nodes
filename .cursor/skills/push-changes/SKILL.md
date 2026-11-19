@@ -25,4 +25,4 @@ A pull request that changes what workflows can contain (a node, an input, a drop
 
 ## `VALUE_TYPES` is append-only
 
-In `api_nodes/common.py`, **`VALUE_TYPES` may only grow**: add new meanings at the **end** of the tuple. Never remove, rename, or reorder. Saved workflows store the chosen `value_type`; invalid entries break loading in ComfyUI. If a meaning is wrong, add a **new** type—leave existing values forever.
+In `api_nodes/common.py`, **`VALUE_TYPES` may only grow**: add new meanings at the **end** of the table, or add a kind to an existing meaning. Never remove or rename a meaning, and never take a kind away from one (reordering breaks no saved workflow, but avoid it). Saved workflows store the chosen `value_type`, and ComfyUI checks it against that node's own list; invalid entries break loading. If a meaning is wrong, add a **new** type—leave existing values forever.

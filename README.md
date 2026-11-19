@@ -23,10 +23,10 @@ auto-build the entire `api_config`.
 | Node | Output | Notes |
 |------|--------|-------|
 | Workflow IO Text Input | STRING | single/multi-line |
-| Workflow IO Int Input | INT | min/max/step |
-| Workflow IO Float Input | FLOAT | min/max/step |
+| Workflow IO Int Input | INT | min/max/step; optional `value_type`: what the value means (see `VALUE_TYPES`) |
+| Workflow IO Float Input | FLOAT | min/max/step; optional `value_type` as for Int |
 | Workflow IO Bool Input | BOOLEAN | |
-| Workflow IO Enum Input | STRING | `options` (one per line or comma-separated) → API enum allowlist; optional `value_type` (`none`, `aspect_ratio`) says what each option means |
+| Workflow IO Enum Input | STRING | `options` (one per line or comma-separated) → API enum allowlist; optional `value_type`: what each option means (see `VALUE_TYPES`) |
 | Workflow IO Multi Enum Input | STRING | several `options` at once, joined by the optional `separator` (default `,`); optional `value_type` as above |
 | Workflow IO Seed Input | INT | `randomize_if_omitted` |
 | Workflow IO Image Input | IMAGE, MASK | LoadImage-style; reads the file the runner writes to the input dir |

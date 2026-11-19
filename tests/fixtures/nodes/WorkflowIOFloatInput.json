@@ -10,12 +10,16 @@
     "example",
     "advanced",
     "group",
-    "order"
+    "order",
+    "value_type"
   ],
   "outputs": [
     "FLOAT"
   ],
   "saved": {
-    "defaults": {"param_name": "", "value": 0.0, "min": 0.0, "max": 1.0, "step": 0.01, "required": true, "description": "", "example": "", "advanced": false, "group": "", "order": 0}
+    "defaults": {"param_name": "", "value": 0.0, "min": 0.0, "max": 1.0, "step": 0.01, "required": true, "description": "", "example": "", "advanced": false, "group": "", "order": 0},
+    "value_type=none": {"param_name": "", "value": 0.0, "min": 0.0, "max": 1.0, "step": 0.01, "required": true, "description": "", "example": "", "advanced": false, "group": "", "order": 0, "value_type": "none"},
+    "value_type=strength": {"param_name": "", "value": 0.0, "min": 0.0, "max": 1.0, "step": 0.01, "required": true, "description": "", "example": "", "advanced": false, "group": "", "order": 0, "value_type": "strength"},
+    "value_type=degrees": {"param_name": "", "value": 0.0, "min": 0.0, "max": 1.0, "step": 0.01, "required": true, "description": "", "example": "", "advanced": false, "group": "", "order": 0, "value_type": "degrees"}
   }
 }
