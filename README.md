@@ -98,9 +98,9 @@ python3 tests/update_fixtures.py   # after adding a node, input, dropdown option
 ```
 
 Node changes must be additive: the runner validates every stored workflow
-against the node definitions it has installed. `tests/fixtures/` holds workflows
-known to work (`workflows/*.json`, including a generated `coverage.json` with
-every node and dropdown option) and each node's widgets and outputs in order
-(`widget_order.json`). The tests, run on every pull request and optionally as a
+against the node definitions it has installed. `tests/fixtures/` holds one file
+per node (`nodes/<NodeClass>.json`: saved instances, one per dropdown option, and
+its widgets and outputs in order) and real workflows known to work
+(`workflows/*.json`). The tests, run on every pull request and optionally as a
 pre-commit hook, check them the way ComfyUI does. Fixtures only grow: never
 edit or delete one to make a test pass. Plain Python, no ComfyUI needed.

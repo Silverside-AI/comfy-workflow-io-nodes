@@ -1,0 +1,19 @@
+{
+  "widgets": [
+    "param_name",
+    "value",
+    "randomize_if_omitted",
+    "required",
+    "description",
+    "example",
+    "advanced",
+    "group",
+    "order"
+  ],
+  "outputs": [
+    "INT"
+  ],
+  "saved": {
+    "defaults": {"param_name": "", "value": 0, "randomize_if_omitted": true, "required": false, "description": "", "example": "", "advanced": false, "group": "", "order": 0}
+  }
+}

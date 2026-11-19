@@ -1,0 +1,22 @@
+{
+  "widgets": [
+    "param_name",
+    "value",
+    "options",
+    "required",
+    "description",
+    "example",
+    "advanced",
+    "group",
+    "order",
+    "value_type"
+  ],
+  "outputs": [
+    "*"
+  ],
+  "saved": {
+    "defaults": {"param_name": "", "value": "", "options": "", "required": true, "description": "", "example": "", "advanced": false, "group": "", "order": 0, "value_type": "none"},
+    "value_type=none": {"param_name": "", "value": "", "options": "", "required": true, "description": "", "example": "", "advanced": false, "group": "", "order": 0, "value_type": "none"},
+    "value_type=aspect_ratio": {"param_name": "", "value": "", "options": "", "required": true, "description": "", "example": "", "advanced": false, "group": "", "order": 0, "value_type": "aspect_ratio"}
+  }
+}
