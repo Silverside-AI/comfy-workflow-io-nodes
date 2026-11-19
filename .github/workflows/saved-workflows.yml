@@ -1,0 +1,16 @@
+name: Saved workflows
+
+# Fails a PR whose node changes would break workflows already saved in prod:
+# the fixtures in tests/fixtures/ must keep validating (see
+# tests/test_saved_workflows.py and docs/comfy-json-ui-contract.md).
+on:
+  pull_request:
+
+jobs:
+  saved-workflows:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Saved workflows still validate
+        run: python3 tests/test_saved_workflows.py -v
