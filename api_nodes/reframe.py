@@ -6,7 +6,7 @@ padding colour, feather) on the connected image or video. In a deployed
 workflow the app shows its own crop tool on whatever reaches this node and sends
 the frame back in ``center_x``, ``center_y``, ``frame_width``, ``frame_height``,
 ``rotation``, ``padding_color`` and ``feathering`` (``aspect_ratio`` locks the
-tool's proportions, ``display`` says how the app shows the crop).
+tool's proportions; the optional ``crop_purpose`` says what the crop is for).
 
 ``mode`` picks image or video. The sockets keep fixed names (``source`` in;
 ``original``, ``cropped`` out; the Composite's ``frame``, ``original`` in and
@@ -24,7 +24,6 @@ or videos.
 """
 
 from .common import ANY_TYPE, CATEGORY_INPUT, editor_run
-from .inputs import display_widget
 
 MAX_RESOLUTION = 16384
 MEDIA_MODES = ["image", "video"]
@@ -32,7 +31,12 @@ ASPECT_RATIO_CHOICES = ["free", "16:9", "4:3", "1:1", "3:4", "9:16", "21:9"]
 PADDING_COLOR_CHOICES = ["grey", "black", "white", "green"]
 CROP_DATA_TYPE = "CROP_DATA"  # same type as Image Reframe, for either Composite
 # How the deployed app shows the crop: the frame over the whole original, or only what's inside it.
-REFRAME_DISPLAY_OPTIONS = ["crop in image", "crop only"]
+# What the crop is for, so the app can choose how to show it: "frame" = the
+# crop or padding is the output's framing (reframe, outpaint); "region" = a part
+# of the image to process and paste back; "auto" = not declared, the app infers
+# it from the graph (a Composite pasting the crop back means "region").
+# Only add to it: ComfyUI rejects a saved value that is no longer in the list.
+CROP_PURPOSES = ["auto", "frame", "region"]
 PASTE_OPTIONS = ["original onto frame", "crop onto original"]
 
 MODE_WIDGET = (MEDIA_MODES, {"default": "image",
@@ -92,13 +96,14 @@ class WorkflowIOImageVideoReframe:
                 "feathering": ("INT", {"default": 0, "min": 0, "max": MAX_RESOLUTION, "step": 1,
                                        "tooltip": "Fades the mask from the padding into the image over this many "
                                                   "pixels, along the image edges that border padding"}),
-                "display": display_widget(
-                    REFRAME_DISPLAY_OPTIONS,
-                    "How the deployed app shows the crop: 'crop in image' = the frame over the whole original "
-                    "image, 'crop only' = just the cropped result, without the parts cut off.",
-                ),
             },
             "optional": {
+                "crop_purpose": (CROP_PURPOSES, {
+                    "default": "auto",
+                    "tooltip": "What the crop is for, so the app can show it fittingly: 'frame' = the crop or "
+                               "padding is the output's framing (reframe, outpaint); 'region' = a part to process "
+                               "and paste back; 'auto' = let the app work it out from the graph.",
+                }),
                 # IMAGE in image mode, VIDEO in video mode (the editor labels it image / video).
                 "source": (ANY_TYPE, {"tooltip": "Image mode: the image to reframe (a batch uses one frame for all). "
                                                  "Video mode: the video; every frame uses the same frame."}),
@@ -129,8 +134,8 @@ class WorkflowIOImageVideoReframe:
     )
 
     def run(self, mode, center_x, center_y, frame_width, frame_height, rotation, aspect_ratio, padding_color,
-            feathering, display="crop in image", source=None, mask=None, node_id=None, extra_pnginfo=None):
-        # aspect_ratio only constrains dragging (editor and app); display only tells the app how to show it.
+            feathering, crop_purpose="auto", source=None, mask=None, node_id=None, extra_pnginfo=None):
+        # aspect_ratio only constrains dragging (editor and app); crop_purpose only tells the app what the crop is for.
         from . import _reframe as R
 
         is_video = mode == "video"

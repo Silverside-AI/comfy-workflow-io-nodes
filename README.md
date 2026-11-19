@@ -23,9 +23,9 @@ auto-build the entire `api_config`.
 | Node | Output | Notes |
 |------|--------|-------|
 | Workflow IO Text Input | STRING | single/multi-line |
-| Workflow IO Int Input | INT | min/max/step; optional `value_type`: what the value means (see `VALUE_TYPES`); `display` number/slider |
-| Workflow IO Float Input | FLOAT | min/max/step; optional `value_type` as for Int; `display` number/slider |
-| Workflow IO Bool Input | BOOLEAN | `display` on/off / toggle |
+| Workflow IO Int Input | INT | min/max/step; optional `value_type`: what the value means (see `VALUE_TYPES`) |
+| Workflow IO Float Input | FLOAT | min/max/step; optional `value_type` as for Int |
+| Workflow IO Bool Input | BOOLEAN | |
 | Workflow IO Enum Input | STRING | `options` (one per line or comma-separated) → API enum allowlist; optional `value_type`: what each option means (see `VALUE_TYPES`) |
 | Workflow IO Multi Enum Input | STRING | several `options` at once, joined by the optional `separator` (default `,`); optional `value_type` as above |
 | Workflow IO Seed Input | INT | `randomize_if_omitted` |
@@ -35,18 +35,9 @@ auto-build the entire `api_config`.
 Every input node shares this metadata block: `param_name` (the API key),
 `required`, `description`, `example`, `advanced`, `group`, `order`.
 
-Int, Float and Bool inputs also carry `display`, after the metadata block: how
-the deployed app shows the input to users. It is optional: API workflows saved
-before it existed leave it out and get the default.
-
-| Input | `display` options (first = default) |
-|-------|-------------------------------------|
-| Int, Float | `number` = a number box they type in or step up/down; `slider` = a slider they drag between `min` and `max` (give a slider a real range) |
-| Bool | `on/off` = two buttons, On and Off, they pick between; `toggle` = a switch they flip |
-
-API exports without the key (workflows saved before it existed) mean the
-default. It sits last so that saved UI workflows, which store widget values by
-position, still load unchanged.
+Int and Float say what a value means with the optional `value_type`, never how
+to show it; Brand Brain picks the control. For example `strength` (an amount
+judged by eye between `min` and `max`) suits a slider, so give it a real range.
 
 ### Editing nodes (`Workflow IO/Inputs`)
 
@@ -93,9 +84,11 @@ through this node.
   `rotation` (degrees, clockwise), `padding_color` (grey/black/white/green),
   `feathering` (px). `aspect_ratio` (free/16:9/4:3/1:1/3:4/9:16/21:9) only
   locks the frame's proportions while dragging, in the editor and in the app.
-  `display`: how the app shows the crop, `crop in image` (default: the frame
-  over the whole original) or `crop only` (just the cropped result, without
-  the parts cut off).
+  Optional `crop_purpose` says what the crop is for, so the app can show it
+  fittingly: `frame` (the crop or padding is the output's framing: reframe,
+  outpaint), `region` (a part to process and paste back) or `auto` (default:
+  the app infers it from the graph, e.g. a Composite pasting the crop back
+  means `region`).
 - **Outputs:** `original` (the image, or the video passed through), `cropped`
   (an image, or a video with the source's audio and frame rate), `mask` (1 in
   the padding, feathered into the image), `crop_data` (the same `CROP_DATA` as
@@ -111,7 +104,7 @@ through this node.
 WorkflowIOImageVideoReframe node "7"  ->  inputs = {
     mode: "video", center_x: 240, center_y: 135, frame_width: 184,
     frame_height: 326, rotation: -6, aspect_ratio: "9:16",
-    padding_color: "black", feathering: 0, display: "crop only",
+    padding_color: "black", feathering: 0, crop_purpose: "frame",
     source: ["4", 0] }
 ```
 
@@ -254,7 +247,7 @@ WorkflowIOTextInput node "2"  ->  api_config.mappings["prompt"] = {
 
 WorkflowIOFloatInput node "5"  ->  api_config.mappings["strength"] = {
     node_id: "5", field: "value", type: "float", ...,
-    min: 0, max: 1, step: 0.05, display: "slider" }   # "number" when absent
+    min: 0, max: 1, step: 0.05, value_type: "strength" }   # "none" when absent
 
 WorkflowIOImageOutput node "8"  ->  api_config.output_nodes = ["8", ...]
 

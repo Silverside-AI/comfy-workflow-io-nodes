@@ -1,0 +1,14 @@
+{
+  "widgets": [
+    "positive_points",
+    "negative_points"
+  ],
+  "outputs": [
+    "IMAGE",
+    "STRING",
+    "STRING"
+  ],
+  "saved": {
+    "defaults": {"image": ["upstream", 0], "positive_points": "", "negative_points": ""}
+  }
+}

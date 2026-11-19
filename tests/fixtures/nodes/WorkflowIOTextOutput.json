@@ -1,0 +1,15 @@
+{
+  "widgets": [
+    "output_name",
+    "filename_template",
+    "include",
+    "action",
+    "fills"
+  ],
+  "outputs": [
+    "STRING"
+  ],
+  "saved": {
+    "defaults": {"text": ["upstream", 0], "output_name": "text", "filename_template": "", "include": true, "action": "", "fills": ""}
+  }
+}

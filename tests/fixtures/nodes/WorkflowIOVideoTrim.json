@@ -1,0 +1,23 @@
+{
+  "widgets": [
+    "mode",
+    "start_frame",
+    "end_frame",
+    "keyframe"
+  ],
+  "outputs": [
+    "VIDEO",
+    "IMAGE",
+    "INT",
+    "INT",
+    "INT",
+    "INT",
+    "INT",
+    "TRIM_DATA"
+  ],
+  "saved": {
+    "defaults": {"video": ["upstream", 0], "mode": "trim", "start_frame": 1, "end_frame": 0, "keyframe": 0},
+    "mode=trim": {"video": ["upstream", 0], "mode": "trim", "start_frame": 1, "end_frame": 0, "keyframe": 0},
+    "mode=trim + keyframe": {"video": ["upstream", 0], "mode": "trim + keyframe", "start_frame": 1, "end_frame": 0, "keyframe": 0}
+  }
+}
