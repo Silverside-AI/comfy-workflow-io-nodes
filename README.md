@@ -92,19 +92,15 @@ Contributors: [docs/comfy-json-ui-contract.md](docs/comfy-json-ui-contract.md) a
 # contract smoke test (no ComfyUI needed — heavy imports are lazy inside run())
 python3 -c "from api_nodes import NODE_CLASS_MAPPINGS; print(len(NODE_CLASS_MAPPINGS))"
 
-# compatibility check: fails on changes that break workflows already saved in prod
-python3 tools/check_contract.py            # working tree vs origin/main
+# saved-workflow tests: fail on node changes that break workflows already saved in prod
+python3 tests/test_saved_workflows.py
+python3 tests/update_fixtures.py   # after adding a node, input, dropdown option or VALUE_TYPES meaning
 ```
 
 Node changes must be additive: the runner validates every stored workflow
-against the node definitions it has installed. `tools/check_contract.py` runs on
-every pull request (`.github/workflows/contract-check.yml`, optionally as a
-pre-commit hook via `.pre-commit-config.yaml`) and fails on a removed node or
-input, a type change, a new required input, a removed or renamed dropdown
-option, a narrowed number range, a widget inserted before existing ones, a
-removed or reordered output, and `VALUE_TYPES` losing or renaming a meaning or
-a meaning losing a kind. Reordering `VALUE_TYPES` only warns: ComfyUI checks a
-saved value by membership, not position. Plain Python, no ComfyUI needed; dropdowns
-filled by ComfyUI itself (Video Output `format`/`codec`) aren't compared. It
-doesn't replace replaying prod workflows through ComfyUI's validation for
-larger changes.
+against the node definitions it has installed. `tests/fixtures/` holds workflows
+known to work (`workflows/*.json`, including a generated `coverage.json` with
+every node and dropdown option) and each node's widgets and outputs in order
+(`widget_order.json`). The tests, run on every pull request and optionally as a
+pre-commit hook, check them the way ComfyUI does. Fixtures only grow: never
+edit or delete one to make a test pass. Plain Python, no ComfyUI needed.
