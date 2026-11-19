@@ -91,4 +91,19 @@ Contributors: [docs/comfy-json-ui-contract.md](docs/comfy-json-ui-contract.md) a
 ```bash
 # contract smoke test (no ComfyUI needed — heavy imports are lazy inside run())
 python3 -c "from api_nodes import NODE_CLASS_MAPPINGS; print(len(NODE_CLASS_MAPPINGS))"
+
+# compatibility check: fails on changes that break workflows already saved in prod
+python3 tools/check_contract.py            # working tree vs origin/main
 ```
+
+Node changes must be additive: the runner validates every stored workflow
+against the node definitions it has installed. `tools/check_contract.py` runs on
+every pull request (`.github/workflows/contract-check.yml`, optionally as a
+pre-commit hook via `.pre-commit-config.yaml`) and fails on a removed node or
+input, a type change, a new required input, a removed or renamed dropdown
+option, a narrowed number range, a widget inserted before existing ones, a
+removed or reordered output, and `VALUE_TYPES` losing, renaming or reordering a
+meaning or a meaning losing a kind. Plain Python, no ComfyUI needed; dropdowns
+filled by ComfyUI itself (Video Output `format`/`codec`) aren't compared. It
+doesn't replace replaying prod workflows through ComfyUI's validation for
+larger changes.

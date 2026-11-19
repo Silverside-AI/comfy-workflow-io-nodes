@@ -6,4 +6,4 @@ Before changing **`VALUE_TYPES`** or **`value_type`**, follow:
 
 - [.cursor/skills/push-changes/SKILL.md](.cursor/skills/push-changes/SKILL.md)
 
-Repo facts: default branch **`main`**, no CI. Contract changes affect saved workflows and downstream parsers—keep diffs small and backward compatible.
+Repo facts: default branch **`main`**; CI runs `tools/check_contract.py` on pull requests (node changes must be additive). Contract changes affect saved workflows and downstream parsers—keep diffs small and backward compatible.
