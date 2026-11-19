@@ -26,7 +26,8 @@
       "example",
       "advanced",
       "group",
-      "order"
+      "order",
+      "value_type"
     ],
     "outputs": [
       "INT"
@@ -44,7 +45,8 @@
       "example",
       "advanced",
       "group",
-      "order"
+      "order",
+      "value_type"
     ],
     "outputs": [
       "FLOAT"
