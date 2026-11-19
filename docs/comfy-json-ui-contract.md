@@ -46,7 +46,8 @@ Each meaning lists the **kinds** of value it applies to (`enum`, `int`, `float`)
 - A meaning describes the value, never the widget: `strength`, not "slider". Brand Brain picks the control.
 - Filter by kind, never by node. A new input declares its kind (`enum`, `int`, `float`); don't give a node class its own list or ask authors to pick a type. The table grows with meanings, not with nodes.
 - Add a meaning only when a real workflow needs it.
-- Append-only, per kind: add meanings, or kinds to a meaning; never remove, rename, reorder, or take a kind away. ComfyUI rejects a saved value that is no longer in a node's list.
+- Append-only, per kind: add meanings, or kinds to a meaning; never remove, rename, or take a kind away. ComfyUI rejects a saved value that is no longer in a node's list.
+- Add new meanings at the end. Reordering breaks no saved workflow (ComfyUI checks a saved value by membership, not position), but it reshuffles every node's dropdown.
 
 ## How data flows
 

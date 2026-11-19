@@ -36,9 +36,10 @@ NODE_SCHEMA = "1"
 # every node that declares it: meaning -> (kinds of value it applies to, what it
 # says). A node offers only the meanings for its kind, so an Enum never shows
 # "strength" and a Float never shows "aspect_ratio".
-# Only add: a new meaning, or a new kind on an existing one. Never remove,
-# rename, reorder or take a kind away: ComfyUI rejects a saved value that is no
-# longer in that node's list.
+# Only add: a new meaning (at the end), or a new kind on an existing one. Never
+# remove, rename or take a kind away: ComfyUI rejects a saved value that is no
+# longer in that node's list. Order doesn't break saved values, it just keeps
+# the dropdowns stable.
 VALUE_TYPES = {
     "none": (("enum", "int", "float"), "no particular meaning"),
     "aspect_ratio": (("enum",), "ratios like 16:9, drawn as shapes"),
