@@ -37,9 +37,8 @@ The meanings live in [`VALUE_TYPES`](../api_nodes/common.py) in `api_nodes/commo
 
 - A meaning describes the value, never the widget: `strength`, not "slider". Brand Brain picks the control.
 - Filter by kind, never by node. A new input declares its kind (`enum`, `int`, `float`); don't give a node class its own list or ask authors to pick a type. `VALUE_TYPES` grows with meanings, not with nodes.
-- Add a meaning only when a real workflow needs it.
-- Append-only, per kind: add meanings, or kinds to a meaning; never remove, rename, or take a kind away. ComfyUI rejects a saved value that is no longer in a node's list.
-- Add new meanings at the end. Reordering breaks no saved workflow (ComfyUI checks a saved value by membership, not position), but it reshuffles every node's dropdown.
+- Append-only, per kind: add meanings at the end, or kinds to a meaning; never remove, rename, or take a kind away. ComfyUI rejects a saved value that is no longer in a node's list.
+- If a meaning changes, add a new one and treat the old one as legacy in the app; do not edit the list in place.
 
 ## How data flows
 
