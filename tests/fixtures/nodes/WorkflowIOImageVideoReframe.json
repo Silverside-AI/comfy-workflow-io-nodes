@@ -1,0 +1,39 @@
+{
+  "widgets": [
+    "mode",
+    "center_x",
+    "center_y",
+    "frame_width",
+    "frame_height",
+    "rotation",
+    "aspect_ratio",
+    "padding_color",
+    "feathering",
+    "crop_purpose"
+  ],
+  "outputs": [
+    "*",
+    "*",
+    "MASK",
+    "CROP_DATA"
+  ],
+  "saved": {
+    "defaults": {"mode": "image", "center_x": 0.0, "center_y": 0.0, "frame_width": 0, "frame_height": 0, "rotation": 0.0, "aspect_ratio": "free", "padding_color": "grey", "feathering": 0, "crop_purpose": "auto"},
+    "mode=image": {"mode": "image", "center_x": 0.0, "center_y": 0.0, "frame_width": 0, "frame_height": 0, "rotation": 0.0, "aspect_ratio": "free", "padding_color": "grey", "feathering": 0, "crop_purpose": "auto"},
+    "mode=video": {"mode": "video", "center_x": 0.0, "center_y": 0.0, "frame_width": 0, "frame_height": 0, "rotation": 0.0, "aspect_ratio": "free", "padding_color": "grey", "feathering": 0, "crop_purpose": "auto"},
+    "aspect_ratio=free": {"mode": "image", "center_x": 0.0, "center_y": 0.0, "frame_width": 0, "frame_height": 0, "rotation": 0.0, "aspect_ratio": "free", "padding_color": "grey", "feathering": 0, "crop_purpose": "auto"},
+    "aspect_ratio=16:9": {"mode": "image", "center_x": 0.0, "center_y": 0.0, "frame_width": 0, "frame_height": 0, "rotation": 0.0, "aspect_ratio": "16:9", "padding_color": "grey", "feathering": 0, "crop_purpose": "auto"},
+    "aspect_ratio=4:3": {"mode": "image", "center_x": 0.0, "center_y": 0.0, "frame_width": 0, "frame_height": 0, "rotation": 0.0, "aspect_ratio": "4:3", "padding_color": "grey", "feathering": 0, "crop_purpose": "auto"},
+    "aspect_ratio=1:1": {"mode": "image", "center_x": 0.0, "center_y": 0.0, "frame_width": 0, "frame_height": 0, "rotation": 0.0, "aspect_ratio": "1:1", "padding_color": "grey", "feathering": 0, "crop_purpose": "auto"},
+    "aspect_ratio=3:4": {"mode": "image", "center_x": 0.0, "center_y": 0.0, "frame_width": 0, "frame_height": 0, "rotation": 0.0, "aspect_ratio": "3:4", "padding_color": "grey", "feathering": 0, "crop_purpose": "auto"},
+    "aspect_ratio=9:16": {"mode": "image", "center_x": 0.0, "center_y": 0.0, "frame_width": 0, "frame_height": 0, "rotation": 0.0, "aspect_ratio": "9:16", "padding_color": "grey", "feathering": 0, "crop_purpose": "auto"},
+    "aspect_ratio=21:9": {"mode": "image", "center_x": 0.0, "center_y": 0.0, "frame_width": 0, "frame_height": 0, "rotation": 0.0, "aspect_ratio": "21:9", "padding_color": "grey", "feathering": 0, "crop_purpose": "auto"},
+    "padding_color=grey": {"mode": "image", "center_x": 0.0, "center_y": 0.0, "frame_width": 0, "frame_height": 0, "rotation": 0.0, "aspect_ratio": "free", "padding_color": "grey", "feathering": 0, "crop_purpose": "auto"},
+    "padding_color=black": {"mode": "image", "center_x": 0.0, "center_y": 0.0, "frame_width": 0, "frame_height": 0, "rotation": 0.0, "aspect_ratio": "free", "padding_color": "black", "feathering": 0, "crop_purpose": "auto"},
+    "padding_color=white": {"mode": "image", "center_x": 0.0, "center_y": 0.0, "frame_width": 0, "frame_height": 0, "rotation": 0.0, "aspect_ratio": "free", "padding_color": "white", "feathering": 0, "crop_purpose": "auto"},
+    "padding_color=green": {"mode": "image", "center_x": 0.0, "center_y": 0.0, "frame_width": 0, "frame_height": 0, "rotation": 0.0, "aspect_ratio": "free", "padding_color": "green", "feathering": 0, "crop_purpose": "auto"},
+    "crop_purpose=auto": {"mode": "image", "center_x": 0.0, "center_y": 0.0, "frame_width": 0, "frame_height": 0, "rotation": 0.0, "aspect_ratio": "free", "padding_color": "grey", "feathering": 0, "crop_purpose": "auto"},
+    "crop_purpose=frame": {"mode": "image", "center_x": 0.0, "center_y": 0.0, "frame_width": 0, "frame_height": 0, "rotation": 0.0, "aspect_ratio": "free", "padding_color": "grey", "feathering": 0, "crop_purpose": "frame"},
+    "crop_purpose=region": {"mode": "image", "center_x": 0.0, "center_y": 0.0, "frame_width": 0, "frame_height": 0, "rotation": 0.0, "aspect_ratio": "free", "padding_color": "grey", "feathering": 0, "crop_purpose": "region"}
+  }
+}

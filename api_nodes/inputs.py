@@ -228,7 +228,7 @@ class WorkflowIOImageInput(_WorkflowIOInputBase):
                     "default": "png,jpg,jpeg,webp",
                     "tooltip": "Comma-separated accepted upload formats (documentation + validation hint).",
                 }),
-                "max_size_mb": ("INT", {"default": 20, "min": 1, "max": 500,
+                "max_size_mb": ("INT", {"default": 100, "min": 1, "max": 500,
                                         "tooltip": "Maximum accepted upload size in MB."}),
                 **{k: v for k, v in meta_widgets().items() if k != "param_name"},
             }
@@ -237,7 +237,7 @@ class WorkflowIOImageInput(_WorkflowIOInputBase):
     RETURN_TYPES = ("IMAGE", "MASK")
     RETURN_NAMES = ("image", "mask")
 
-    def run(self, param_name, value, accepted_formats="", max_size_mb=20, **_meta):
+    def run(self, param_name, value, accepted_formats="", max_size_mb=100, **_meta):
         import numpy as np
         import torch
         from PIL import Image, ImageOps

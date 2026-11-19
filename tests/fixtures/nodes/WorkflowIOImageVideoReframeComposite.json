@@ -1,0 +1,18 @@
+{
+  "widgets": [
+    "mode",
+    "paste",
+    "feather",
+    "resize_source"
+  ],
+  "outputs": [
+    "*"
+  ],
+  "saved": {
+    "defaults": {"mode": "image", "paste": "original onto frame", "feather": 0, "resize_source": false},
+    "mode=image": {"mode": "image", "paste": "original onto frame", "feather": 0, "resize_source": false},
+    "mode=video": {"mode": "video", "paste": "original onto frame", "feather": 0, "resize_source": false},
+    "paste=original onto frame": {"mode": "image", "paste": "original onto frame", "feather": 0, "resize_source": false},
+    "paste=crop onto original": {"mode": "image", "paste": "crop onto original", "feather": 0, "resize_source": false}
+  }
+}

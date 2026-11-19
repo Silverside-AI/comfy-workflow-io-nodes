@@ -1,0 +1,13 @@
+{
+  "widgets": [
+    "fit"
+  ],
+  "outputs": [
+    "VIDEO"
+  ],
+  "saved": {
+    "defaults": {"trimmed_video": ["upstream", 0], "original_video": ["upstream", 0], "trim_data": ["upstream", 0], "fit": "by time"},
+    "fit=by time": {"trimmed_video": ["upstream", 0], "original_video": ["upstream", 0], "trim_data": ["upstream", 0], "fit": "by time"},
+    "fit=stretch": {"trimmed_video": ["upstream", 0], "original_video": ["upstream", 0], "trim_data": ["upstream", 0], "fit": "stretch"}
+  }
+}
