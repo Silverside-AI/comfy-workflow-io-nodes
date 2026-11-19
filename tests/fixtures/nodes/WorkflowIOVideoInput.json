@@ -1,0 +1,20 @@
+{
+  "widgets": [
+    "param_name",
+    "value",
+    "accepted_formats",
+    "max_size_mb",
+    "required",
+    "description",
+    "example",
+    "advanced",
+    "group",
+    "order"
+  ],
+  "outputs": [
+    "VIDEO"
+  ],
+  "saved": {
+    "defaults": {"param_name": "", "value": "", "accepted_formats": "mp4,mov,webm", "max_size_mb": 100, "required": true, "description": "", "example": "", "advanced": false, "group": "", "order": 0}
+  }
+}

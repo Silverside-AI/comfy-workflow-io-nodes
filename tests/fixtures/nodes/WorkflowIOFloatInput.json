@@ -1,0 +1,21 @@
+{
+  "widgets": [
+    "param_name",
+    "value",
+    "min",
+    "max",
+    "step",
+    "required",
+    "description",
+    "example",
+    "advanced",
+    "group",
+    "order"
+  ],
+  "outputs": [
+    "FLOAT"
+  ],
+  "saved": {
+    "defaults": {"param_name": "", "value": 0.0, "min": 0.0, "max": 1.0, "step": 0.01, "required": true, "description": "", "example": "", "advanced": false, "group": "", "order": 0}
+  }
+}

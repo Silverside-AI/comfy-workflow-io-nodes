@@ -1,0 +1,18 @@
+{
+  "widgets": [
+    "param_name",
+    "value",
+    "required",
+    "description",
+    "example",
+    "advanced",
+    "group",
+    "order"
+  ],
+  "outputs": [
+    "STRING"
+  ],
+  "saved": {
+    "defaults": {"param_name": "", "value": "", "required": true, "description": "", "example": "", "advanced": false, "group": "", "order": 0}
+  }
+}

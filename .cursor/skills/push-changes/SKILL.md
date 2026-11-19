@@ -12,11 +12,11 @@ Read [docs/comfy-json-ui-contract.md](../../../docs/comfy-json-ui-contract.md) f
 
 ## Keep the saved-workflow fixtures up to date
 
-`tests/fixtures/` stands in for workflows already saved in prod, and CI runs `python3 tests/test_saved_workflows.py` on every pull request.
+`tests/fixtures/` stands in for workflows already saved in prod, and CI runs `python3 tests/test_saved_workflows.py` on every pull request. Each node has its own file, `tests/fixtures/nodes/<NodeClass>.json`: saved instances of it, and its widgets and outputs in order.
 
-- After adding a node, an input, a dropdown option or a `VALUE_TYPES` meaning or kind, run `python3 tests/update_fixtures.py` and commit the fixture changes with the node change.
+- After adding a node, an input, a dropdown option or a `VALUE_TYPES` meaning or kind, run `python3 tests/update_fixtures.py` and commit the changed node files with the node change.
 - New inputs go in `optional`, and new widgets go after the existing ones.
-- Fixtures only grow. Never edit or delete a fixture, or an entry in `widget_order.json`, to make a test pass: a failure means saved workflows would break. Change the node instead, or flag it to a human, since a real break needs stored workflows migrated.
+- Fixtures only grow. Never edit or delete a fixture, or an entry in a node file, to make a test pass: a failure means saved workflows would break. Change the node instead, or flag it to a human, since a real break needs stored workflows migrated.
 - When a new kind of workflow ships (a new node in real use), add a small exported API workflow that uses it to `tests/fixtures/workflows/`.
 
 ## `VALUE_TYPES` is append-only

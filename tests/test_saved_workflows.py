@@ -4,14 +4,16 @@ Brand Brain stores each workflow version's exported API JSON, and the runner
 validates it against the node definitions it has installed before every run.
 These tests do the same against the fixtures in ``tests/fixtures/``:
 
-* ``workflows/*.json``: API workflows known to work. Each Workflow IO node in
-  them must pass the same checks as ComfyUI's ``validate_inputs``: the node
-  class exists, every required input is present, a dropdown value is in the
-  list, a number has the right type and is within min/max, a link points at an
-  existing output. ``coverage.json`` holds every node and every dropdown option.
-* ``widget_order.json``: each node's widgets and outputs, in order. Saved UI
-  workflows store widget values by position and links by output index, so the
-  current lists must start with the recorded ones (append only).
+* ``nodes/<NodeClass>.json``, one per node:
+  - ``saved``: inputs of saved instances of the node, one per dropdown option.
+    Each must pass the same checks as ComfyUI's ``validate_inputs``: the node
+    class exists, every required input is present, a dropdown value is in the
+    list, a number has the right type and is within min/max.
+  - ``widgets`` and ``outputs``, in order. Saved UI workflows store widget
+    values by position and links by output index, so the current lists must
+    start with the recorded ones (append only).
+* ``workflows/*.json``: real API workflows known to work, checked the same way,
+  plus the links between nodes.
 
 Fixtures only grow: never edit or delete one to make a test pass. A failure
 means a saved workflow would break. ``python3 tests/update_fixtures.py`` adds
@@ -97,14 +99,21 @@ class SavedWorkflowsStillValidate(unittest.TestCase):
                     self.fail(f"{path.name} would no longer run:\n  " + "\n  ".join(errors))
 
 
-class WidgetsAndOutputsOnlyAppended(unittest.TestCase):
-    def test_widget_order(self):
-        recorded = json.loads((FIXTURES / "widget_order.json").read_text())
-        for class_type, old in recorded.items():
+class SavedNodesStillValidate(unittest.TestCase):
+    def test_nodes(self):
+        paths = sorted((FIXTURES / "nodes").glob("*.json"))
+        self.assertTrue(paths, "no node fixtures found")
+        for path in paths:
+            class_type, old = path.stem, json.loads(path.read_text())
             with self.subTest(node=class_type):
                 current = NODES.get(class_type)
                 if current is None:
                     self.fail(f"{class_type}: node class no longer exists")
+                saved = {case: {"class_type": class_type, "inputs": inputs} for case, inputs in old["saved"].items()}
+                errors = validate(saved)
+                if errors:
+                    self.fail(f"nodes/{path.name}: saved {class_type} nodes would no longer run:\n  "
+                              + "\n  ".join(errors))
                 for key, what in (("widgets", "widget values by position"), ("outputs", "links by output index")):
                     now = current[key]
                     if now[:len(old[key])] != old[key]:
