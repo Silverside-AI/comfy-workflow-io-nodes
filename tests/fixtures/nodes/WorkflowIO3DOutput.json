@@ -1,0 +1,13 @@
+{
+  "widgets": [
+    "output_name",
+    "filename_template",
+    "include"
+  ],
+  "outputs": [
+    "FILE_3D"
+  ],
+  "saved": {
+    "defaults": {"model_3d": ["upstream", 0], "output_name": "model", "filename_template": "", "include": true}
+  }
+}

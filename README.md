@@ -23,10 +23,10 @@ auto-build the entire `api_config`.
 | Node | Output | Notes |
 |------|--------|-------|
 | Workflow IO Text Input | STRING | single/multi-line |
-| Workflow IO Int Input | INT | min/max/step; `display` number/slider |
-| Workflow IO Float Input | FLOAT | min/max/step; `display` number/slider |
+| Workflow IO Int Input | INT | min/max/step; optional `value_type`: what the value means (see `VALUE_TYPES`); `display` number/slider |
+| Workflow IO Float Input | FLOAT | min/max/step; optional `value_type` as for Int; `display` number/slider |
 | Workflow IO Bool Input | BOOLEAN | `display` on/off / toggle |
-| Workflow IO Enum Input | STRING | `options` (one per line or comma-separated) → API enum allowlist; optional `value_type` (`none`, `aspect_ratio`) says what each option means |
+| Workflow IO Enum Input | STRING | `options` (one per line or comma-separated) → API enum allowlist; optional `value_type`: what each option means (see `VALUE_TYPES`) |
 | Workflow IO Multi Enum Input | STRING | several `options` at once, joined by the optional `separator` (default `,`); optional `value_type` as above |
 | Workflow IO Seed Input | INT | `randomize_if_omitted` |
 | Workflow IO Image Input | IMAGE, MASK | LoadImage-style; reads the file the runner writes to the input dir |
@@ -261,4 +261,16 @@ Contributors: [docs/comfy-json-ui-contract.md](docs/comfy-json-ui-contract.md) a
 ```bash
 # contract smoke test (no ComfyUI needed — heavy imports are lazy inside run())
 python3 -c "from api_nodes import NODE_CLASS_MAPPINGS; print(len(NODE_CLASS_MAPPINGS))"
+
+# saved-workflow tests: fail on node changes that break workflows already saved in prod
+python3 tests/test_saved_workflows.py
+python3 tests/update_fixtures.py   # after adding a node, input, dropdown option or VALUE_TYPES meaning
 ```
+
+Node changes must be additive: the runner validates every stored workflow
+against the node definitions it has installed. `tests/fixtures/` holds one file
+per node (`nodes/<NodeClass>.json`: saved instances, one per dropdown option, and
+its widgets and outputs in order) and real workflows known to work
+(`workflows/*.json`). The tests, run on every pull request and optionally as a
+pre-commit hook, check them the way ComfyUI does. Fixtures only grow: never
+edit or delete one to make a test pass. Plain Python, no ComfyUI needed.
