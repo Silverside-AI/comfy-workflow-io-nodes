@@ -1,0 +1,79 @@
+name: Post Release
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  post-release:
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Read version
+        id: version
+        run: |
+          VERSION=$(python3 -c "import pathlib, re; t = pathlib.Path('pyproject.toml').read_text(); print(re.search(r'(?m)^version = \"([^\"]+)\"', t).group(1))")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Tag release
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          git tag "v$VERSION"
+          git push origin "v$VERSION"
+
+      - name: Build release notes
+        id: notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr list \
+            --base develop \
+            --state merged \
+            --json number,title \
+            --jq '.[] | "- #\(.number) \(.title)"' > release-notes.txt
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          gh release create "v$VERSION" \
+            --title "v$VERSION" \
+            --notes-file release-notes.txt \
+            dist/workflow-io-contract.ts
+
+      - name: Merge main back into develop
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          git fetch origin develop
+          git checkout develop
+          git merge origin/main --no-ff -m "chore: sync develop with main after release $VERSION"
+          git push origin develop
+
+      - name: Summary
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          echo "### Post-release complete" >> "$GITHUB_STEP_SUMMARY"
+          echo "| | |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Version   | \`$VERSION\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Tag       | \`v$VERSION\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Release   | [v$VERSION](https://github.com/${{ github.repository }}/releases/tag/v$VERSION) |" >> "$GITHUB_STEP_SUMMARY"
