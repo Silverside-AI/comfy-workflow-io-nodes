@@ -12,7 +12,7 @@
     "order",
     "start_frame",
     "end_frame",
-    "max_frame"
+    "max_length"
   ],
   "outputs": [
     "VIDEO"
