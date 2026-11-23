@@ -34,7 +34,7 @@ Docs: [Comfy JSON ↔ Brand Brain contract](docs/comfy-json-ui-contract.md)
 | Multi Enum Input | STRING | several `options`, joined by `separator` (default `,`); optional `value_type` |
 | Seed Input | INT | `randomize_if_omitted` |
 | Image Input | IMAGE, MASK | LoadImage-style, reads the file the runner writes |
-| Video Input | VIDEO | LoadVideo-style, decoding deferred to the consumer |
+| Video Input | VIDEO | LoadVideo-style, decoding deferred to the consumer; optional trim (`start_frame`, `end_frame`) |
 
 Every input shares `param_name` (the API key), `required`, `description`,
 `example`, `advanced`, `group`, `order`. `value_type` says what a value means,

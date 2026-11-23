@@ -55,12 +55,21 @@ WorkflowIOFloatInput node "5"  ->  api_config.mappings["strength"] = {
     node_id: "5", field: "value", type: "float", ...,
     min: 0, max: 1, step: 0.05, value_type: "strength" }   # "none" when absent
 
+WorkflowIOVideoInput node "6"  ->  api_config.mappings["video"] = {
+    node_id: "6", field: "value", ...,
+    start_frame: 1, end_frame: 0 }   # trim; (1, 0) = the whole video
+
 WorkflowIOImageOutput node "8"  ->  api_config.output_nodes = ["8", ...]
 
 WorkflowIOTextOutput node "9" with action  ->  api_config.actions["Suggest prompt"] = {
     node_id: "9", fills: "prompt", inputs: ["video", "reference_image"] }
     # left out of output_nodes and of the normal run's workflow
 ```
+
+A Video Input's optional `start_frame` / `end_frame` trim the uploaded video
+before it reaches the graph: frames counted from 1, inclusive, `end_frame` 0 =
+the last frame (the same convention as Workflow IO Video Trim). The app sends
+them per call next to `value`; when absent the whole video is used, as before.
 
 Because `output_nodes` is emitted as an allowlist (not a rename map), the runner
 returns each output with the exact filename the node saved — no server-side
