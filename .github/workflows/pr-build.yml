@@ -36,9 +36,14 @@ jobs:
         run: |
           VERSION=$(python3 -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
           ZIP="comfy-workflow-io-nodes-$VERSION-pr$PR.zip"
-          # Same contents and folder as a release zip (see release.yml).
-          git archive --format=zip --prefix=comfy-workflow-io-nodes/ -o "$ZIP" HEAD \
-            __init__.py api_nodes web pyproject.toml requirements.txt README.md
+          # The installed pack's version shows it's an alpha: 0.1.0+pr4.abc1234
+          # (a PEP 440 local version, so tools that parse pyproject accept it).
+          sed -i "s/^version = \".*\"/version = \"$VERSION+pr$PR.${SHA:0:7}\"/" pyproject.toml
+          # Same contents and folder as a release zip (see release.yml), with
+          # the stamped pyproject.toml from the working tree.
+          git archive --format=zip --prefix=comfy-workflow-io-nodes/ -o "$ZIP" \
+            --add-file=pyproject.toml HEAD \
+            __init__.py api_nodes web requirements.txt README.md
           echo "zip=$ZIP" >> "$GITHUB_OUTPUT"
 
       - name: Replace the pre-release
