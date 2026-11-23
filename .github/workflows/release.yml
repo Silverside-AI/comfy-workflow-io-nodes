@@ -1,0 +1,54 @@
+name: Release
+
+# Tags main and publishes a GitHub Release with the custom node zip (to upload
+# to Comfy) and the generated TypeScript contract (for Brand Brain) attached.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release, e.g. 0.2.0"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      VERSION: ${{ inputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Check the version
+        run: |
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Version must look like 0.2.0, got '$VERSION'."
+            exit 1
+          fi
+          if gh release view "v$VERSION" >/dev/null 2>&1; then
+            echo "::error::Release v$VERSION already exists."
+            exit 1
+          fi
+
+      - name: Build the custom node zip and the contract
+        run: |
+          # Only what ComfyUI loads, in a folder without the version, so a newer
+          # upload replaces the node pack instead of adding a second copy.
+          git archive --format=zip --prefix=comfy-workflow-io-nodes/ \
+            -o "comfy-workflow-io-nodes-$VERSION.zip" HEAD \
+            __init__.py api_nodes web pyproject.toml requirements.txt README.md
+          python3 scripts/generate_workflow_io_contract.py
+
+      - name: Create the release
+        run: |
+          gh release create "v$VERSION" \
+            --target "$(git rev-parse HEAD)" \
+            --title "v$VERSION" \
+            --generate-notes \
+            "comfy-workflow-io-nodes-$VERSION.zip" \
+            dist/workflow-io-contract.ts
