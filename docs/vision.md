@@ -1,7 +1,7 @@
 # Vision
 
-Where this repo is heading. Much of it is still in progress; for what works
-today, see the [README](../README.md) and the
+Where this repo is heading, and the work in progress today to get there. For
+the nodes and contract as they stand, see the [README](../README.md) and the
 [contract doc](comfy-json-ui-contract.md).
 
 ## Extending Brand Brain from ComfyUI
