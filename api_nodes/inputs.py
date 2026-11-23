@@ -282,6 +282,11 @@ class WorkflowIOVideoInput(_WorkflowIOInputBase):
     the app can send a trim with the upload. Same convention as Workflow IO
     Video Trim: frames counted from 1, inclusive, ``end_frame`` 0 = the last
     frame. The defaults (1, 0) keep the whole video, as before.
+
+    Optional ``max_frame`` caps how many frames the trim may keep, for models
+    that take at most so many frames. The app's trim tool should keep the
+    selection within it; if a longer range arrives anyway, ``end_frame`` is
+    pulled in to ``start_frame + max_frame - 1``. 0 (the default) = no limit.
     """
 
     @classmethod
@@ -305,13 +310,17 @@ class WorkflowIOVideoInput(_WorkflowIOInputBase):
                 "end_frame": ("INT", {"default": 0, "min": 0, "max": MAX_FRAMES,
                                       "tooltip": "Trim: last frame kept, inclusive. 0 = last frame of the video. "
                                                  "The app may set it per call."}),
+                "max_frame": ("INT", {"default": 0, "min": 0, "max": MAX_FRAMES,
+                                      "tooltip": "Trim: most frames the trim may keep. 0 = no limit. "
+                                                 "A longer range is cut short at its end."}),
             },
         }
 
     RETURN_TYPES = ("VIDEO",)
     RETURN_NAMES = ("video",)
 
-    def run(self, param_name, value, accepted_formats="", max_size_mb=100, start_frame=1, end_frame=0, **_meta):
+    def run(self, param_name, value, accepted_formats="", max_size_mb=100, start_frame=1, end_frame=0,
+            max_frame=0, **_meta):
         import folder_paths
         from comfy_api.input_impl import VideoFromFile
 
@@ -324,7 +333,7 @@ class WorkflowIOVideoInput(_WorkflowIOInputBase):
                 f"WorkflowIOVideoInput '{param_name}': video '{value}' not found in the input directory."
             )
 
-        if start_frame <= 1 and end_frame <= 0:
+        if start_frame <= 1 and end_frame <= 0 and max_frame <= 0:
             return (VideoFromFile(path),)  # no trim: the whole video, as before
 
         from . import _video as V
@@ -332,6 +341,8 @@ class WorkflowIOVideoInput(_WorkflowIOInputBase):
         info = V.probe(path)
         total = len(info["pts"])
         start, end, _ = V.clamp_range(total, start_frame, end_frame, 0)
+        if max_frame > 0:
+            end = min(end, start + max_frame - 1)
         if start == 1 and end == total:
             return (VideoFromFile(path),)
         start_time, duration = V.window(info, start - 1, end - 1)

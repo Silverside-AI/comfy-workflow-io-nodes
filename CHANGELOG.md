@@ -11,6 +11,7 @@ when their image was built.
 
 ## 2026-11-23
 
+- Video Input: optional `max_frame`, the most frames its trim may keep (0 = no limit); a longer range is cut short at its end. ([#17](https://github.com/Silverside-AI/comfy-workflow-io-nodes/pull/17))
 - Video Input: optional trim, `start_frame` and `end_frame` (frames from 1, inclusive; `end_frame` 0 = last frame, as on Video Trim). Without them the whole video is used, as before. ([#13](https://github.com/Silverside-AI/comfy-workflow-io-nodes/pull/13))
 - `workflow-io-contract.ts` names the release it came from in its header comment (`from release v0.1.0`, or `alpha-<branch>` for an alpha).
 - **Release** action shows the zip's download link in the run summary, and for an alpha also comments it on the branch's open pull request (one comment, updated on each run).
