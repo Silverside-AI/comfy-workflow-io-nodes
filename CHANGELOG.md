@@ -9,6 +9,10 @@ the git log.
 A date here isn't a deploy date: the runner and editor run whatever `main` was
 when their image was built.
 
+## 2026-11-23
+
+- Generated TypeScript contract (`dist/workflow-io-contract.ts`: `value_type` meanings, crop purposes, node class types and the `WORKFLOW_IO_NODES` catalog) for Brand Brain to pin. CI checks it is regenerated after node changes, and the **Release** action tags `main` and attaches it to the GitHub Release. ([#4](https://github.com/aw93silverside/comfy-workflow-io-nodes/pull/4))
+
 ## 2026-11-19
 
 - New editing nodes: Image/Video Reframe and its Composite, Video Trim and Trim Composite, Point Selector, with editors in ComfyUI. Reframe's optional `crop_purpose` (`auto`, `frame`, `region`) says what the crop is for. Image Input `max_size_mb` default 20 → 100. ([#4](https://github.com/aw93silverside/comfy-workflow-io-nodes/pull/4), [#10](https://github.com/aw93silverside/comfy-workflow-io-nodes/pull/10))

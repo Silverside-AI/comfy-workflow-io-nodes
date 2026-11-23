@@ -1,0 +1,85 @@
+name: Release
+
+# Bumps the version on main, tags it and publishes a GitHub Release with the
+# generated TypeScript contract attached. Consumers pin the tag.
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "Version bump type"
+        required: true
+        default: patch
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Contract TypeScript is up to date
+        run: python3 scripts/generate_workflow_io_contract.py --check
+
+      - name: Bump version in pyproject.toml
+        id: version
+        env:
+          BUMP: ${{ inputs.bump }}
+        run: |
+          VERSION=$(python3 - <<'EOF'
+          import os, pathlib, re, tomllib
+          path = pathlib.Path("pyproject.toml")
+          major, minor, patch = map(int, tomllib.loads(path.read_text())["project"]["version"].split("."))
+          bump = os.environ["BUMP"]
+          new = {"major": f"{major + 1}.0.0", "minor": f"{major}.{minor + 1}.0", "patch": f"{major}.{minor}.{patch + 1}"}[bump]
+          path.write_text(re.sub(r'(?m)^version = "[^"]+"', f'version = "{new}"', path.read_text(), count=1))
+          print(new)
+          EOF
+          )
+          if git rev-parse -q --verify "refs/tags/v$VERSION" >/dev/null; then
+            echo "::error::Tag v$VERSION already exists."
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Release notes from CHANGELOG.md
+        run: |
+          # Changelog lines added since the previous tag (all of them on the first release).
+          PREVIOUS=$(git describe --tags --abbrev=0 2>/dev/null || true)
+          if [ -n "$PREVIOUS" ]; then
+            git diff "$PREVIOUS" HEAD -- CHANGELOG.md | sed -n 's/^+\(- .*\)/\1/p' > release-notes.md
+          else
+            grep '^- ' CHANGELOG.md > release-notes.md
+          fi
+          [ -s release-notes.md ] || echo "No changelog entries since $PREVIOUS." > release-notes.md
+
+      - name: Commit, tag and push
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -am "chore: release v$VERSION"
+          git tag "v$VERSION"
+          git push origin main "v$VERSION"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          gh release create "v$VERSION" \
+            --title "v$VERSION" \
+            --notes-file release-notes.md \
+            dist/workflow-io-contract.ts
+          echo "Released [v$VERSION](https://github.com/${{ github.repository }}/releases/tag/v$VERSION)" >> "$GITHUB_STEP_SUMMARY"
