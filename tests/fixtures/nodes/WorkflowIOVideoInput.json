@@ -11,7 +11,8 @@
     "group",
     "order",
     "start_frame",
-    "end_frame"
+    "end_frame",
+    "max_frame"
   ],
   "outputs": [
     "VIDEO"

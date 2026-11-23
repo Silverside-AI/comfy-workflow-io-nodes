@@ -35,7 +35,7 @@ Docs: [Vision](docs/vision.md) ·
 | Multi Enum Input | STRING | several `options`, joined by `separator` (default `,`); optional `value_type` |
 | Seed Input | INT | `randomize_if_omitted` |
 | Image Input | IMAGE, MASK | LoadImage-style, reads the file the runner writes |
-| Video Input | VIDEO | LoadVideo-style, decoding deferred to the consumer; optional trim (`start_frame`, `end_frame`) |
+| Video Input | VIDEO | LoadVideo-style, decoding deferred to the consumer; optional trim (`start_frame`, `end_frame`, `max_frame`) |
 
 Every input shares `param_name` (the API key), `required`, `description`,
 `example`, `advanced`, `group`, `order`. `value_type` says what a value means,
