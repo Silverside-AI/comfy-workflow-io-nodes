@@ -16,7 +16,8 @@ contract (see [Releasing](#releasing)).
 
 Docs: [Comfy JSON ↔ Brand Brain contract](docs/comfy-json-ui-contract.md)
 (`value_type`, `api_config` mapping, actions) ·
-[Editing nodes](docs/editing-nodes.md) · [Changelog](CHANGELOG.md) ·
+[Editing nodes](docs/editing-nodes.md) · [Testing suggestions](docs/testing-suggestions.md) ·
+[Changelog](CHANGELOG.md) ·
 [AGENTS.md](AGENTS.md)
 
 ## Nodes
