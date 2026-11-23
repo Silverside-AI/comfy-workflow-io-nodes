@@ -1,4 +1,4 @@
-name: Release
+name: Publish Comfy nodes and BB contract
 
 # Publishes the custom node zip (to upload to Comfy) and the generated
 # TypeScript contract (for Brand Brain) as a GitHub Release.
