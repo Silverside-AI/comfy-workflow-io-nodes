@@ -11,6 +11,7 @@ when their image was built.
 
 ## 2026-11-23
 
+- `workflow-io-contract.ts` names the release it came from in its header comment (`from release v0.1.0`, or `alpha-<branch>` for an alpha).
 - **Release** action shows the zip's download link in the run summary, and for an alpha also comments it on the branch's open pull request (one comment, updated on each run).
 - **Release** action: one dropdown, `alpha`, `patch`, `minor` or `major`. An alpha is versioned as the latest release plus its commit (`0.1.0+alpha.<branch>.<sha>`, zip `comfy-workflow-io-nodes-alpha-<branch>-<sha>.zip`), so Comfy shows which commit is installed.
 - **Release** action works out the next version from the latest release (patch, minor or major), and can make an **alpha** of any branch: a pre-release `alpha-<branch>` with that branch's zip and contract, replaced on each run and deleted when its pull request closes.

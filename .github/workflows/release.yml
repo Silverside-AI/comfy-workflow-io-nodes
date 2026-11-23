@@ -81,6 +81,7 @@ jobs:
         env:
           ZIP: ${{ steps.v.outputs.zip }}
           PYPROJECT_VERSION: ${{ steps.v.outputs.pyproject_version }}
+          TAG: ${{ steps.v.outputs.tag }}
         run: |
           sed -i "s/^version = \".*\"/version = \"$PYPROJECT_VERSION\"/" pyproject.toml
           # Only what ComfyUI loads, in a folder without the version, so a newer
@@ -88,7 +89,7 @@ jobs:
           git archive --format=zip --prefix=comfy-workflow-io-nodes/ -o "$ZIP" \
             --add-file=pyproject.toml HEAD \
             __init__.py api_nodes web requirements.txt README.md
-          python3 scripts/generate_workflow_io_contract.py
+          python3 scripts/generate_workflow_io_contract.py --release "$TAG"
 
       - name: Create the release
         if: inputs.release != 'alpha'
