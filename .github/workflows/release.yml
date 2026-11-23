@@ -26,6 +26,8 @@ on:
 
 permissions:
   contents: write
+  # To comment the alpha's links on the branch's pull request.
+  pull-requests: write
 
 jobs:
   release:
@@ -116,3 +118,43 @@ jobs:
             --title "Alpha: $BRANCH" \
             --notes "Alpha of \`$BRANCH\` at ${SHA:0:7}, for testing only. Upload \`$ZIP\` to a scratch Comfy workspace: it replaces the released Workflow IO Nodes there. Running the alpha again replaces this one, and it's deleted when the branch's pull request closes." \
             "$ZIP" dist/workflow-io-contract.ts
+
+      - name: Link the zip in the run summary
+        env:
+          TAG: ${{ steps.v.outputs.tag }}
+          ZIP: ${{ steps.v.outputs.zip }}
+          BASE: ${{ github.server_url }}/${{ github.repository }}/releases
+        run: |
+          {
+            echo "### $TAG ready"
+            echo
+            echo "- Zip to upload to Comfy: [$ZIP]($BASE/download/$TAG/$ZIP)"
+            echo "- Contract: [workflow-io-contract.ts]($BASE/download/$TAG/workflow-io-contract.ts)"
+            echo "- Release: $BASE/tag/$TAG"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Link the alpha on the branch's pull request
+        if: inputs.release == 'alpha'
+        env:
+          TAG: ${{ steps.v.outputs.tag }}
+          ZIP: ${{ steps.v.outputs.zip }}
+          BASE: ${{ github.server_url }}/${{ github.repository }}/releases
+          REPO: ${{ github.repository }}
+        run: |
+          PR=$(gh pr list --repo "$REPO" --head "$BRANCH" --state open --json number --jq '.[0].number // empty')
+          if [ -z "$PR" ]; then
+            echo "No open pull request for $BRANCH: the links are in the run summary only."
+            exit 0
+          fi
+          # One comment per pull request, edited on each run, found by this marker.
+          MARKER="<!-- workflow-io-alpha -->"
+          BODY="$MARKER
+          **Alpha of this branch** at $(git rev-parse --short=7 HEAD), for testing only: upload [\`$ZIP\`]($BASE/download/$TAG/$ZIP) to a scratch Comfy workspace.
+          Contract: [\`workflow-io-contract.ts\`]($BASE/download/$TAG/workflow-io-contract.ts) · [Release]($BASE/tag/$TAG)"
+          COMMENT=$(gh api "repos/$REPO/issues/$PR/comments" --paginate \
+            --jq ".[] | select(.body | startswith(\"$MARKER\")) | .id" | head -1)
+          if [ -n "$COMMENT" ]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$COMMENT" -f body="$BODY" > /dev/null
+          else
+            gh pr comment "$PR" --repo "$REPO" --body "$BODY"
+          fi
