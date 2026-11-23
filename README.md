@@ -111,8 +111,8 @@ creates a GitHub Release with two files:
 
 | `release` | Run from | Result |
 |-----------|----------|--------|
-| `alpha` (default) | any branch | Pre-release `alpha-<branch>`, versioned `<latest>+alpha.<branch>.<sha>`. Replaced on each run, linked in a comment on the branch's PR, deleted when the PR closes (**Alpha cleanup**). |
-| `patch` / `minor` / `major` | `main` only | Bumps the latest `v*` tag (`v0.1.0` → `v0.1.1` for a patch) and creates that release with generated notes. |
+| `alpha` | any branch | Pre-release `alpha-<branch>`, versioned `<latest>+alpha.<branch>.<sha>`. Replaced on each run, linked in a comment on the branch's PR, deleted when the PR closes (**Alpha cleanup**). |
+| `patch` (default) / `minor` / `major` | `main` only | Bumps the latest `v*` tag (`v0.1.0` → `v0.1.1` for a patch) and creates that release with generated notes. |
 
 The run summary links the zip and contract. After a release, upload the zip to
 the editor and runner, and bump the pinned contract tag in Brand Brain if the
