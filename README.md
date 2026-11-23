@@ -1,9 +1,11 @@
 # comfy-workflow-io-nodes
 
 Custom ComfyUI nodes that let a workflow author declare its **API contract
-inside the graph** instead of hand-mapping it in a deploy UI. Exported as API
-JSON, the nodes carry the contract as widget values, and Brand Brain's parser
-builds the `api_config` from them.
+inside the graph** instead of hand-mapping it in a deploy UI. When a workflow
+is exported from ComfyUI (**Export (API)**), the nodes' widget values carry the
+contract, and Brand Brain's parser builds the `api_config` from them. This repo
+doesn't produce that JSON; its releases publish the node pack and a TypeScript
+contract (see [Releasing](#releasing)).
 
 - **Input nodes** are passthrough: they hold a `value` and output it. The API
   runner overrides `value` per call, always on this node's own field, never on a
