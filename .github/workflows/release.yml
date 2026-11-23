@@ -49,6 +49,7 @@ jobs:
           gh release create "v$VERSION" \
             --target "$(git rev-parse HEAD)" \
             --title "v$VERSION" \
+            --notes "Upload \`comfy-workflow-io-nodes-$VERSION.zip\` to Comfy. The \"Source code\" archives below are the whole repo, added by GitHub to every release." \
             --generate-notes \
             "comfy-workflow-io-nodes-$VERSION.zip" \
             dist/workflow-io-contract.ts
