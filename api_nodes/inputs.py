@@ -238,7 +238,7 @@ class WorkflowIOImageInput(_WorkflowIOInputBase):
     RETURN_TYPES = ("IMAGE", "MASK")
     RETURN_NAMES = ("image", "mask")
 
-    def run(self, param_name, value, accepted_formats="", max_size_mb=100, start_frame=1, end_frame=0, **_meta):
+    def run(self, param_name, value, accepted_formats="", max_size_mb=100, **_meta):
         import numpy as np
         import torch
         from PIL import Image, ImageOps
