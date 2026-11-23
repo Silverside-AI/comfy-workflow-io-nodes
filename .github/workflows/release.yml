@@ -16,7 +16,7 @@ on:
       release:
         description: "alpha (any branch, for testing), or a version bump from the latest release (main only)"
         required: true
-        default: alpha
+        default: patch
         type: choice
         options:
           - alpha
