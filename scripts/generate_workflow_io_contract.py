@@ -70,7 +70,33 @@ def build_contract() -> dict:
         "workflowIoOutputClassTypes": output_nodes,
         "nodeDisplayNames": dict(sorted(NODE_DISPLAY_NAME_MAPPINGS.items())),
         "semanticExportFields": SEMANTIC_EXPORT_FIELDS,
+        "nodes": _node_catalog(
+            sorted(NODE_CLASS_MAPPINGS.keys()),
+            dict(NODE_DISPLAY_NAME_MAPPINGS),
+            set(input_nodes),
+            SEMANTIC_EXPORT_FIELDS,
+        ),
     }
+
+
+def _node_catalog(
+    class_types: list[str],
+    display_names: dict[str, str],
+    input_class_types: set[str],
+    semantic_fields: dict[str, list[str]],
+) -> list[dict]:
+    """One row per node, inputs first, then display name. The admin registry lists this."""
+    rows = [
+        {
+            "classType": class_type,
+            "displayName": display_names[class_type],
+            "role": "input" if class_type in input_class_types else "output",
+            "semanticFields": semantic_fields.get(class_type, []),
+        }
+        for class_type in class_types
+    ]
+    rows.sort(key=lambda row: (0 if row["role"] == "input" else 1, row["displayName"]))
+    return rows
 
 
 def ts_string_literal(value: str) -> str:
@@ -115,6 +141,16 @@ def render_typescript(contract: dict) -> str:
         f"export const WORKFLOW_IO_CROP_PURPOSES = {json.dumps(contract['cropPurposes'])} as const;",
         "",
         f"export const WORKFLOW_IO_INPUT_CLASS_TYPES = {json.dumps(contract['workflowIoInputClassTypes'])} as const;",
+        "",
+        "/** Every Workflow IO node, in list order. Brand Brain's widget registry reads this. */",
+        "export const WORKFLOW_IO_NODES = "
+        + json.dumps(contract["nodes"], indent=2)
+        + " as const satisfies readonly {"
+        " classType: WorkflowIoNodeClassType;"
+        " displayName: string;"
+        " role: 'input' | 'output';"
+        " semanticFields: readonly string[];"
+        " }[];",
         "",
         "/** Optional semantic fields a node's exported inputs may carry (api_config / mappings). */",
         "export const WORKFLOW_IO_SEMANTIC_EXPORT_FIELDS = "

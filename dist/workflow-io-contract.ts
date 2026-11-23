@@ -56,6 +56,129 @@ export const WORKFLOW_IO_CROP_PURPOSES = ["auto", "frame", "region"] as const;
 
 export const WORKFLOW_IO_INPUT_CLASS_TYPES = ["WorkflowIOBoolInput", "WorkflowIOEnumInput", "WorkflowIOFloatInput", "WorkflowIOImageInput", "WorkflowIOImageVideoReframe", "WorkflowIOImageVideoReframeComposite", "WorkflowIOIntInput", "WorkflowIOMultiEnumInput", "WorkflowIOPointSelector", "WorkflowIOSeedInput", "WorkflowIOTextInput", "WorkflowIOVideoInput", "WorkflowIOVideoTrim", "WorkflowIOVideoTrimComposite"] as const;
 
+/** Every Workflow IO node, in list order. Brand Brain's widget registry reads this. */
+export const WORKFLOW_IO_NODES = [
+  {
+    "classType": "WorkflowIOBoolInput",
+    "displayName": "Workflow IO Bool Input",
+    "role": "input",
+    "semanticFields": []
+  },
+  {
+    "classType": "WorkflowIOEnumInput",
+    "displayName": "Workflow IO Enum Input",
+    "role": "input",
+    "semanticFields": [
+      "value_type"
+    ]
+  },
+  {
+    "classType": "WorkflowIOFloatInput",
+    "displayName": "Workflow IO Float Input",
+    "role": "input",
+    "semanticFields": [
+      "value_type"
+    ]
+  },
+  {
+    "classType": "WorkflowIOImageInput",
+    "displayName": "Workflow IO Image Input",
+    "role": "input",
+    "semanticFields": []
+  },
+  {
+    "classType": "WorkflowIOImageVideoReframe",
+    "displayName": "Workflow IO Image/Video Reframe",
+    "role": "input",
+    "semanticFields": [
+      "crop_purpose"
+    ]
+  },
+  {
+    "classType": "WorkflowIOImageVideoReframeComposite",
+    "displayName": "Workflow IO Image/Video Reframe Composite",
+    "role": "input",
+    "semanticFields": []
+  },
+  {
+    "classType": "WorkflowIOIntInput",
+    "displayName": "Workflow IO Int Input",
+    "role": "input",
+    "semanticFields": [
+      "value_type"
+    ]
+  },
+  {
+    "classType": "WorkflowIOMultiEnumInput",
+    "displayName": "Workflow IO Multi Enum Input",
+    "role": "input",
+    "semanticFields": [
+      "value_type",
+      "separator"
+    ]
+  },
+  {
+    "classType": "WorkflowIOPointSelector",
+    "displayName": "Workflow IO Point Selector",
+    "role": "input",
+    "semanticFields": []
+  },
+  {
+    "classType": "WorkflowIOSeedInput",
+    "displayName": "Workflow IO Seed Input",
+    "role": "input",
+    "semanticFields": []
+  },
+  {
+    "classType": "WorkflowIOTextInput",
+    "displayName": "Workflow IO Text Input",
+    "role": "input",
+    "semanticFields": []
+  },
+  {
+    "classType": "WorkflowIOVideoInput",
+    "displayName": "Workflow IO Video Input",
+    "role": "input",
+    "semanticFields": []
+  },
+  {
+    "classType": "WorkflowIOVideoTrim",
+    "displayName": "Workflow IO Video Trim",
+    "role": "input",
+    "semanticFields": []
+  },
+  {
+    "classType": "WorkflowIOVideoTrimComposite",
+    "displayName": "Workflow IO Video Trim Composite",
+    "role": "input",
+    "semanticFields": []
+  },
+  {
+    "classType": "WorkflowIO3DOutput",
+    "displayName": "Workflow IO 3D Output",
+    "role": "output",
+    "semanticFields": []
+  },
+  {
+    "classType": "WorkflowIOImageOutput",
+    "displayName": "Workflow IO Image Output",
+    "role": "output",
+    "semanticFields": []
+  },
+  {
+    "classType": "WorkflowIOTextOutput",
+    "displayName": "Workflow IO Text Output",
+    "role": "output",
+    "semanticFields": []
+  },
+  {
+    "classType": "WorkflowIOVideoOutput",
+    "displayName": "Workflow IO Video Output",
+    "role": "output",
+    "semanticFields": []
+  }
+] as const satisfies readonly { classType: WorkflowIoNodeClassType; displayName: string; role: 'input' | 'output'; semanticFields: readonly string[]; }[];
+
 /** Optional semantic fields a node's exported inputs may carry (api_config / mappings). */
 export const WORKFLOW_IO_SEMANTIC_EXPORT_FIELDS = {
   "WorkflowIOIntInput": [
