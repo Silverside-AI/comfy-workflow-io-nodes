@@ -28,6 +28,9 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
+          # Deploy key: the only push allowed to bypass the "Protect main"
+          # ruleset (PRs and passing CI required for everyone else).
+          ssh-key: ${{ secrets.RELEASE_DEPLOY_KEY }}
 
       - name: Saved workflows still validate
         run: python3 tests/test_saved_workflows.py -v
