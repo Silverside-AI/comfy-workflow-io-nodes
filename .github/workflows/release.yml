@@ -3,29 +3,23 @@ name: Publish Comfy nodes and BB contract
 # Publishes the custom node zip (to upload to Comfy) and the generated
 # TypeScript contract (for Brand Brain) as a GitHub Release.
 #
-# - release: from main only. Bumps the latest v* tag (v0.1.0 -> v0.1.1 for a
-#   patch) and creates that release.
+# - patch, minor or major: from main only. Bumps the latest v* tag (v0.1.0 ->
+#   v0.1.1 for a patch) and creates that release.
 # - alpha: from any branch (pick it in "Use workflow from"). Creates or replaces
-#   the pre-release alpha-<branch>, deleted when the branch's PR closes
-#   (alpha-cleanup.yml).
+#   the pre-release alpha-<branch>, versioned as the latest release plus that
+#   commit (0.1.0+alpha.<branch>.<sha>), and deleted when the branch's PR
+#   closes (alpha-cleanup.yml).
 
 on:
   workflow_dispatch:
     inputs:
-      type:
-        description: "alpha (any branch, for testing) or release (main only)"
+      release:
+        description: "alpha (any branch, for testing), or a version bump from the latest release (main only)"
         required: true
         default: alpha
         type: choice
         options:
           - alpha
-          - release
-      bump:
-        description: "Version bump from the latest release"
-        required: true
-        default: patch
-        type: choice
-        options:
           - patch
           - minor
           - major
@@ -38,8 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      TYPE: ${{ inputs.type }}
-      BUMP: ${{ inputs.bump }}
+      RELEASE: ${{ inputs.release }}
       BRANCH: ${{ github.ref_name }}
     steps:
       - uses: actions/checkout@v4
@@ -49,33 +42,37 @@ jobs:
       - name: Work out the version
         id: v
         run: |
-          if [ "$TYPE" = release ] && [ "$BRANCH" != main ]; then
-            echo "::error::A release must run from main (this ran from $BRANCH). Pick alpha to test a branch."
+          if [ "$RELEASE" != alpha ] && [ "$BRANCH" != main ]; then
+            echo "::error::A $RELEASE release must run from main (this ran from $BRANCH). Pick alpha to test a branch."
             exit 1
           fi
           LATEST=$(git tag -l 'v*' --sort=-v:refname | head -1)
           IFS=. read -r MAJOR MINOR PATCH <<< "${LATEST#v}"
           MAJOR=${MAJOR:-0} MINOR=${MINOR:-0} PATCH=${PATCH:-0}
-          case "$BUMP" in
+          case "$RELEASE" in
             major) NEXT="$((MAJOR + 1)).0.0" ;;
             minor) NEXT="$MAJOR.$((MINOR + 1)).0" ;;
             patch) NEXT="$MAJOR.$MINOR.$((PATCH + 1))" ;;
           esac
-          if [ "$TYPE" = release ]; then
-            TAG="v$NEXT" VERSION="$NEXT" PYPROJECT_VERSION="$NEXT"
+          if [ "$RELEASE" != alpha ]; then
+            TAG="v$NEXT" PYPROJECT_VERSION="$NEXT"
+            ZIP="comfy-workflow-io-nodes-$NEXT.zip"
           else
             # Same slug as alpha-cleanup.yml: sil-1714-value-type
             SLUG=$(echo "$BRANCH" | tr 'A-Z' 'a-z' | sed -E 's/[^a-z0-9]+/-/g; s/^-+//' | cut -c1-60 | sed -E 's/-+$//')
-            TAG="alpha-$SLUG" VERSION="$NEXT-alpha.$SLUG"
-            # A PEP 440 local version, so Comfy shows the installed pack is an alpha.
-            PYPROJECT_VERSION="$NEXT+alpha.$SLUG"
+            SHA=$(git rev-parse --short=7 HEAD)
+            # The tag has no commit, so each run replaces the branch's alpha.
+            TAG="alpha-$SLUG"
+            # The latest release plus this commit, as a PEP 440 local version,
+            # so Comfy shows the installed pack is an alpha and of which commit.
+            PYPROJECT_VERSION="$MAJOR.$MINOR.$PATCH+alpha.$SLUG.$SHA"
+            ZIP="comfy-workflow-io-nodes-alpha-$SLUG-$SHA.zip"
           fi
           {
             echo "latest=$LATEST"
             echo "tag=$TAG"
-            echo "version=$VERSION"
             echo "pyproject_version=$PYPROJECT_VERSION"
-            echo "zip=comfy-workflow-io-nodes-$VERSION.zip"
+            echo "zip=$ZIP"
           } >> "$GITHUB_OUTPUT"
 
       - name: Build the custom node zip and the contract
@@ -92,7 +89,7 @@ jobs:
           python3 scripts/generate_workflow_io_contract.py
 
       - name: Create the release
-        if: inputs.type == 'release'
+        if: inputs.release != 'alpha'
         env:
           TAG: ${{ steps.v.outputs.tag }}
           LATEST: ${{ steps.v.outputs.latest }}
@@ -106,7 +103,7 @@ jobs:
             "$ZIP" dist/workflow-io-contract.ts
 
       - name: Create or replace the alpha
-        if: inputs.type == 'alpha'
+        if: inputs.release == 'alpha'
         env:
           TAG: ${{ steps.v.outputs.tag }}
           ZIP: ${{ steps.v.outputs.zip }}
