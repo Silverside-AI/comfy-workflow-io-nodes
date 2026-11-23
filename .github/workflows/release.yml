@@ -1,7 +1,8 @@
 name: Release
 
 # Bumps the version on main, tags it and publishes a GitHub Release with the
-# generated TypeScript contract attached. Consumers pin the tag.
+# custom node zip (to upload to Comfy) and the generated TypeScript contract
+# attached. Consumers pin the tag.
 
 on:
   workflow_dispatch:
@@ -73,6 +74,18 @@ jobs:
           git tag "v$VERSION"
           git push origin main "v$VERSION"
 
+      - name: Build the custom node zip
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          # Only what ComfyUI loads. The folder inside has no version, so a newer
+          # upload replaces the node pack instead of adding a second copy.
+          git archive --format=zip \
+            --prefix=comfy-workflow-io-nodes/ \
+            -o "comfy-workflow-io-nodes-$VERSION.zip" \
+            "v$VERSION" \
+            __init__.py api_nodes web pyproject.toml requirements.txt README.md
+
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -81,5 +94,6 @@ jobs:
           gh release create "v$VERSION" \
             --title "v$VERSION" \
             --notes-file release-notes.md \
+            "comfy-workflow-io-nodes-$VERSION.zip" \
             dist/workflow-io-contract.ts
           echo "Released [v$VERSION](https://github.com/${{ github.repository }}/releases/tag/v$VERSION)" >> "$GITHUB_STEP_SUMMARY"

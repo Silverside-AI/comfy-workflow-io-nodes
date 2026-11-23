@@ -11,7 +11,7 @@ when their image was built.
 
 ## 2026-11-23
 
-- Generated TypeScript contract (`dist/workflow-io-contract.ts`: `value_type` meanings, crop purposes, node class types and the `WORKFLOW_IO_NODES` catalog) for Brand Brain to pin. CI checks it is regenerated after node changes, and the **Release** action tags `main` and attaches it to the GitHub Release. ([#4](https://github.com/aw93silverside/comfy-workflow-io-nodes/pull/4))
+- Generated TypeScript contract (`dist/workflow-io-contract.ts`: `value_type` meanings, crop purposes, node class types and the `WORKFLOW_IO_NODES` catalog) for Brand Brain to pin. CI checks it is regenerated after node changes, and the **Release** action tags `main` and attaches it to the GitHub Release, with `comfy-workflow-io-nodes-<version>.zip` to upload to Comfy. ([#4](https://github.com/aw93silverside/comfy-workflow-io-nodes/pull/4))
 
 ## 2026-11-19
 
