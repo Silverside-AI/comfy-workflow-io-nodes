@@ -1,0 +1,65 @@
+name: PR build
+
+# Alpha build of each pull request, to try in Comfy without merging: a
+# pre-release tagged pr-<number> with the custom node zip, replaced on every
+# push and deleted (with its tag) when the pull request closes.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: pr-build-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  PR: ${{ github.event.pull_request.number }}
+  SHA: ${{ github.event.pull_request.head.sha }}
+
+jobs:
+  build:
+    # Forks get a read-only token and can't publish releases.
+    if: github.event.action != 'closed' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Build the custom node zip
+        id: zip
+        run: |
+          VERSION=$(python3 -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
+          ZIP="comfy-workflow-io-nodes-$VERSION-pr$PR.zip"
+          # Same contents and folder as a release zip (see release.yml).
+          git archive --format=zip --prefix=comfy-workflow-io-nodes/ -o "$ZIP" HEAD \
+            __init__.py api_nodes web pyproject.toml requirements.txt README.md
+          echo "zip=$ZIP" >> "$GITHUB_OUTPUT"
+
+      - name: Replace the pre-release
+        env:
+          ZIP: ${{ steps.zip.outputs.zip }}
+        run: |
+          gh release delete "pr-$PR" --cleanup-tag --yes 2>/dev/null || true
+          gh release create "pr-$PR" "$ZIP" \
+            --target "$SHA" \
+            --prerelease \
+            --title "PR #$PR alpha" \
+            --notes "Alpha build of #$PR at ${SHA:0:7}, for testing only. Replaced on every push and deleted when the pull request closes. Uploading it to Comfy replaces the released Workflow IO Nodes."
+
+      - name: Link it on the pull request
+        if: github.event.action != 'synchronize'
+        run: |
+          gh pr comment "$PR" --body "Alpha build for trying this branch in Comfy: [PR #$PR alpha](https://github.com/${{ github.repository }}/releases/tag/pr-$PR). It updates on every push and is deleted when this pull request closes."
+
+  cleanup:
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete the pre-release and its tag
+        run: gh release delete "pr-$PR" --cleanup-tag --yes --repo "${{ github.repository }}" || true

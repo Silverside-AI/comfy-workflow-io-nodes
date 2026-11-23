@@ -56,7 +56,7 @@ jobs:
       - name: Release notes from CHANGELOG.md
         run: |
           # Changelog lines added since the previous tag (all of them on the first release).
-          PREVIOUS=$(git describe --tags --abbrev=0 2>/dev/null || true)
+          PREVIOUS=$(git describe --tags --match 'v*' --abbrev=0 2>/dev/null || true)
           if [ -n "$PREVIOUS" ]; then
             git diff "$PREVIOUS" HEAD -- CHANGELOG.md | sed -n 's/^+\(- .*\)/\1/p' > release-notes.md
           else
