@@ -58,7 +58,7 @@ WorkflowIOFloatInput node "5"  ->  api_config.mappings["strength"] = {
 WorkflowIOVideoInput node "6"  ->  api_config.mappings["video"] = {
     node_id: "6", field: "value", ...,
     start_frame: 1, end_frame: 0,    # trim; (1, 0) = the whole video
-    max_frame: 0 }                   # most frames the trim may keep; 0 = no limit
+    max_length: 0 }                  # most frames the trim may keep; 0 = no limit
 
 WorkflowIOImageOutput node "8"  ->  api_config.output_nodes = ["8", ...]
 
@@ -71,7 +71,7 @@ A Video Input's optional `start_frame` / `end_frame` trim the uploaded video
 before it reaches the graph: frames counted from 1, inclusive, `end_frame` 0 =
 the last frame (the same convention as Workflow IO Video Trim). The app sends
 them per call next to `value`; when absent the whole video is used, as before.
-`max_frame`, set by the workflow author, caps the trim's length in frames (0 =
+`max_length`, set by the workflow author, caps the trim's length in frames (0 =
 no limit): the app's trim tool should keep the selection within it, and a
 longer range that still arrives is cut short at its end.
 
