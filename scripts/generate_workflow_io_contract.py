@@ -41,6 +41,7 @@ SEMANTIC_EXPORT_FIELDS: dict[str, list[str]] = {
     "WorkflowIOEnumInput": ["value_type"],
     "WorkflowIOMultiEnumInput": ["value_type", "separator"],
     "WorkflowIOImageVideoReframe": ["crop_purpose"],
+    "WorkflowIOVideoInput": ["start_frame", "end_frame"],
 }
 
 

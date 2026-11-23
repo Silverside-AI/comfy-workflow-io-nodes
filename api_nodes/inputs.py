@@ -13,6 +13,7 @@ including mid-workflow to expose an intermediate value as an API knob.
 import os
 
 from .common import ANY_TYPE, CATEGORY_INPUT, meta_widgets, value_type_widget
+from .trim import MAX_FRAMES
 
 
 class _WorkflowIOInputBase:
@@ -237,7 +238,7 @@ class WorkflowIOImageInput(_WorkflowIOInputBase):
     RETURN_TYPES = ("IMAGE", "MASK")
     RETURN_NAMES = ("image", "mask")
 
-    def run(self, param_name, value, accepted_formats="", max_size_mb=100, **_meta):
+    def run(self, param_name, value, accepted_formats="", max_size_mb=100, start_frame=1, end_frame=0, **_meta):
         import numpy as np
         import torch
         from PIL import Image, ImageOps
@@ -276,6 +277,11 @@ class WorkflowIOVideoInput(_WorkflowIOInputBase):
     Decoding is deferred to whatever node consumes the VIDEO downstream —
     unlike eagerly decoding to frames here, this preserves audio and avoids
     paying the decode cost when it isn't needed.
+
+    Optional ``start_frame`` / ``end_frame`` trim the video to a frame range, so
+    the app can send a trim with the upload. Same convention as Workflow IO
+    Video Trim: frames counted from 1, inclusive, ``end_frame`` 0 = the last
+    frame. The defaults (1, 0) keep the whole video, as before.
     """
 
     @classmethod
@@ -291,13 +297,21 @@ class WorkflowIOVideoInput(_WorkflowIOInputBase):
                 "max_size_mb": ("INT", {"default": 100, "min": 1, "max": 2000,
                                         "tooltip": "Maximum accepted upload size in MB."}),
                 **{k: v for k, v in meta_widgets().items() if k != "param_name"},
-            }
+            },
+            "optional": {
+                "start_frame": ("INT", {"default": 1, "min": 1, "max": MAX_FRAMES,
+                                        "tooltip": "Trim: first frame kept (1 = first frame of the video). "
+                                                   "The app may set it per call."}),
+                "end_frame": ("INT", {"default": 0, "min": 0, "max": MAX_FRAMES,
+                                      "tooltip": "Trim: last frame kept, inclusive. 0 = last frame of the video. "
+                                                 "The app may set it per call."}),
+            },
         }
 
     RETURN_TYPES = ("VIDEO",)
     RETURN_NAMES = ("video",)
 
-    def run(self, param_name, value, accepted_formats="", max_size_mb=100, **_meta):
+    def run(self, param_name, value, accepted_formats="", max_size_mb=100, start_frame=1, end_frame=0, **_meta):
         import folder_paths
         from comfy_api.input_impl import VideoFromFile
 
@@ -310,4 +324,15 @@ class WorkflowIOVideoInput(_WorkflowIOInputBase):
                 f"WorkflowIOVideoInput '{param_name}': video '{value}' not found in the input directory."
             )
 
-        return (VideoFromFile(path),)
+        if start_frame <= 1 and end_frame <= 0:
+            return (VideoFromFile(path),)  # no trim: the whole video, as before
+
+        from . import _video as V
+
+        info = V.probe(path)
+        total = len(info["pts"])
+        start, end, _ = V.clamp_range(total, start_frame, end_frame, 0)
+        if start == 1 and end == total:
+            return (VideoFromFile(path),)
+        start_time, duration = V.window(info, start - 1, end - 1)
+        return (V._video_from_file_cls()(path, start_time=start_time, duration=duration),)
