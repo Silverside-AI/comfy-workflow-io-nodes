@@ -14,7 +14,8 @@ contract (see [Releasing](#releasing)).
   tool on it and sends the node's fields back.
 - **Output nodes** mark what's returned to the caller and set its filename.
 
-Docs: [Comfy JSON ↔ Brand Brain contract](docs/comfy-json-ui-contract.md)
+Docs: [Vision](docs/vision.md) ·
+[Comfy JSON ↔ Brand Brain contract](docs/comfy-json-ui-contract.md)
 (`value_type`, `api_config` mapping, actions) ·
 [Editing nodes](docs/editing-nodes.md) · [Testing suggestions](docs/testing-suggestions.md) ·
 [Changelog](CHANGELOG.md) ·
