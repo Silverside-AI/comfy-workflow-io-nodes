@@ -1,14 +1,34 @@
 name: Release
 
-# Tags main and publishes a GitHub Release with the custom node zip (to upload
-# to Comfy) and the generated TypeScript contract (for Brand Brain) attached.
+# Publishes the custom node zip (to upload to Comfy) and the generated
+# TypeScript contract (for Brand Brain) as a GitHub Release.
+#
+# - release: from main only. Bumps the latest v* tag (v0.1.0 -> v0.1.1 for a
+#   patch) and creates that release.
+# - alpha: from any branch (pick it in "Use workflow from"). Creates or replaces
+#   the pre-release alpha-<branch>, deleted when the branch's PR closes
+#   (alpha-cleanup.yml).
 
 on:
   workflow_dispatch:
     inputs:
-      version:
-        description: "Version to release, e.g. 0.2.0"
+      type:
+        description: "alpha (any branch, for testing) or release (main only)"
         required: true
+        default: alpha
+        type: choice
+        options:
+          - alpha
+          - release
+      bump:
+        description: "Version bump from the latest release"
+        required: true
+        default: patch
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
 
 permissions:
   contents: write
@@ -18,38 +38,84 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      VERSION: ${{ inputs.version }}
+      TYPE: ${{ inputs.type }}
+      BUMP: ${{ inputs.bump }}
+      BRANCH: ${{ github.ref_name }}
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: main
+          fetch-depth: 0
 
-      - name: Check the version
+      - name: Work out the version
+        id: v
         run: |
-          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "::error::Version must look like 0.2.0, got '$VERSION'."
+          if [ "$TYPE" = release ] && [ "$BRANCH" != main ]; then
+            echo "::error::A release must run from main (this ran from $BRANCH). Pick alpha to test a branch."
             exit 1
           fi
-          if gh release view "v$VERSION" >/dev/null 2>&1; then
-            echo "::error::Release v$VERSION already exists."
-            exit 1
+          LATEST=$(git tag -l 'v*' --sort=-v:refname | head -1)
+          IFS=. read -r MAJOR MINOR PATCH <<< "${LATEST#v}"
+          MAJOR=${MAJOR:-0} MINOR=${MINOR:-0} PATCH=${PATCH:-0}
+          case "$BUMP" in
+            major) NEXT="$((MAJOR + 1)).0.0" ;;
+            minor) NEXT="$MAJOR.$((MINOR + 1)).0" ;;
+            patch) NEXT="$MAJOR.$MINOR.$((PATCH + 1))" ;;
+          esac
+          if [ "$TYPE" = release ]; then
+            TAG="v$NEXT" VERSION="$NEXT" PYPROJECT_VERSION="$NEXT"
+          else
+            # Same slug as alpha-cleanup.yml: sil-1714-value-type
+            SLUG=$(echo "$BRANCH" | tr 'A-Z' 'a-z' | sed -E 's/[^a-z0-9]+/-/g; s/^-+//' | cut -c1-60 | sed -E 's/-+$//')
+            TAG="alpha-$SLUG" VERSION="$NEXT-alpha.$SLUG"
+            # A PEP 440 local version, so Comfy shows the installed pack is an alpha.
+            PYPROJECT_VERSION="$NEXT+alpha.$SLUG"
           fi
+          {
+            echo "latest=$LATEST"
+            echo "tag=$TAG"
+            echo "version=$VERSION"
+            echo "pyproject_version=$PYPROJECT_VERSION"
+            echo "zip=comfy-workflow-io-nodes-$VERSION.zip"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Build the custom node zip and the contract
+        env:
+          ZIP: ${{ steps.v.outputs.zip }}
+          PYPROJECT_VERSION: ${{ steps.v.outputs.pyproject_version }}
         run: |
+          sed -i "s/^version = \".*\"/version = \"$PYPROJECT_VERSION\"/" pyproject.toml
           # Only what ComfyUI loads, in a folder without the version, so a newer
           # upload replaces the node pack instead of adding a second copy.
-          git archive --format=zip --prefix=comfy-workflow-io-nodes/ \
-            -o "comfy-workflow-io-nodes-$VERSION.zip" HEAD \
-            __init__.py api_nodes web pyproject.toml requirements.txt README.md
+          git archive --format=zip --prefix=comfy-workflow-io-nodes/ -o "$ZIP" \
+            --add-file=pyproject.toml HEAD \
+            __init__.py api_nodes web requirements.txt README.md
           python3 scripts/generate_workflow_io_contract.py
 
       - name: Create the release
+        if: inputs.type == 'release'
+        env:
+          TAG: ${{ steps.v.outputs.tag }}
+          LATEST: ${{ steps.v.outputs.latest }}
+          ZIP: ${{ steps.v.outputs.zip }}
         run: |
-          gh release create "v$VERSION" \
+          gh release create "$TAG" \
             --target "$(git rev-parse HEAD)" \
-            --title "v$VERSION" \
-            --notes "Upload \`comfy-workflow-io-nodes-$VERSION.zip\` to Comfy. The \"Source code\" archives below are the whole repo, added by GitHub to every release." \
-            --generate-notes \
-            "comfy-workflow-io-nodes-$VERSION.zip" \
-            dist/workflow-io-contract.ts
+            --title "$TAG" \
+            --notes "Upload \`$ZIP\` to Comfy. The \"Source code\" archives below are the whole repo, added by GitHub to every release." \
+            --generate-notes ${LATEST:+--notes-start-tag "$LATEST"} \
+            "$ZIP" dist/workflow-io-contract.ts
+
+      - name: Create or replace the alpha
+        if: inputs.type == 'alpha'
+        env:
+          TAG: ${{ steps.v.outputs.tag }}
+          ZIP: ${{ steps.v.outputs.zip }}
+        run: |
+          SHA=$(git rev-parse HEAD)
+          gh release delete "$TAG" --cleanup-tag --yes 2>/dev/null || true
+          gh release create "$TAG" \
+            --target "$SHA" \
+            --prerelease \
+            --title "Alpha: $BRANCH" \
+            --notes "Alpha of \`$BRANCH\` at ${SHA:0:7}, for testing only. Upload \`$ZIP\` to a scratch Comfy workspace: it replaces the released Workflow IO Nodes there. Running the alpha again replaces this one, and it's deleted when the branch's pull request closes." \
+            "$ZIP" dist/workflow-io-contract.ts
