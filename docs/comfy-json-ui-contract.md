@@ -40,6 +40,58 @@ The meanings live in [`VALUE_TYPES`](../api_nodes/common.py) in `api_nodes/commo
 - Append-only, per kind: add meanings at the end, or kinds to a meaning; never remove, rename, or take a kind away. ComfyUI rejects a saved value that is no longer in a node's list.
 - If a meaning changes, add a new one and treat the old one as legacy in the app; do not edit the list in place.
 
+## Exported JSON → `api_config`
+
+Each API node serializes its widgets into the API JSON `inputs`. The
+parser maps:
+
+```
+WorkflowIOTextInput node "2"  ->  api_config.mappings["prompt"] = {
+    node_id: "2", field: "value", type: "string", required: true,
+    default: {enabled: true, value: "a photograph of a cat"},
+    tooltip: "<description>", advanced_setting: false }
+
+WorkflowIOFloatInput node "5"  ->  api_config.mappings["strength"] = {
+    node_id: "5", field: "value", type: "float", ...,
+    min: 0, max: 1, step: 0.05, value_type: "strength" }   # "none" when absent
+
+WorkflowIOImageOutput node "8"  ->  api_config.output_nodes = ["8", ...]
+
+WorkflowIOTextOutput node "9" with action  ->  api_config.actions["Suggest prompt"] = {
+    node_id: "9", fills: "prompt", inputs: ["video", "reference_image"] }
+    # left out of output_nodes and of the normal run's workflow
+```
+
+Because `output_nodes` is emitted as an allowlist (not a rename map), the runner
+returns each output with the exact filename the node saved — no server-side
+renaming. See [`examples/sample_api_workflow.json`](../examples/sample_api_workflow.json)
+for the full exported shape the parser consumes.
+
+## Actions: a step the app runs before the real run (Suggest prompt)
+
+A Workflow IO Text Output with `action` set (a button label, e.g. `Suggest
+prompt`) and `fills` (the `param_name` of an input, e.g. `Prompt`) is a step the
+app runs on its own. Example: a video edit whose prompt an LLM can write from the
+clip and the reference. The user presses **Suggest prompt**, the written prompt
+appears in the Prompt field, they read it, change it if they like, and press
+Generate: the real run uses the field as it is, so what they see is what runs.
+
+How the app runs it:
+
+1. **The action** (button pressed): send the workflow trimmed to that Text Output
+   and every node that feeds it. ComfyUI runs every output node it is given, and
+   deployments drop ComfyUI's `partial_execution_targets`, so trimming is how
+   only the suggestion branch runs (no render). Send values only for the inputs
+   left in the trimmed workflow; enable the button once those are filled.
+2. **The result**: the job returns one `file` output, `<output_name>.txt` (UTF-8);
+   its content goes into the input named by `fills`.
+3. **The real run**: send the workflow without its action outputs, with the
+   input as the user left it. Nodes that only fed the action don't run.
+
+[`tools/action_graph.py`](../tools/action_graph.py) does both trims and lists each
+action's inputs (`python tools/action_graph.py workflow_api.json [--write]`).
+With `action` empty, the text is simply returned with the normal run.
+
 ## How data flows
 
 ```
