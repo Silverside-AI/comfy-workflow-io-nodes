@@ -11,7 +11,7 @@ when their image was built.
 
 ## 2026-11-25
 
-- Video Input: optional trim caps `max_frames` (frames) and `max_seconds` (seconds, from the clip's timestamps); the strictest one set wins. `max_length` stays as the older name of `max_frames`, so workflows saved with it keep their cap. ([#PR](PR_URL))
+- Video Input: optional trim caps `max_frames` (frames) and `max_seconds` (seconds, from the clip's timestamps); the strictest one set wins. `max_length` stays as the older name of `max_frames`, so workflows saved with it keep their cap. ([#19](https://github.com/Silverside-AI/comfy-workflow-io-nodes/pull/19))
 
 ## 2026-11-23
 
