@@ -12,7 +12,6 @@ thumbnail strip, both in ComfyUI's temp folder.
 
 import os
 import re
-from bisect import bisect_right
 from collections import OrderedDict
 from fractions import Fraction
 
@@ -103,18 +102,6 @@ def window(info, first, last):
     if last >= len(pts) - 1:
         return start_time, 0.0  # to the end of the file
     return start_time, float((pts[last + 1] - pts[first]) * tb)
-
-
-def last_frame_within(info, start, seconds):
-    """The last 1-based frame a trim from ``start`` may keep and last at most ``seconds``.
-
-    A frame lasts until the next frame's pts (the last one until ``end_pts``), so
-    this follows the clip's real timestamps, variable frame rate included. Always
-    keeps at least the start frame.
-    """
-    boundaries = info["pts"] + [info["end_pts"]]
-    limit = boundaries[start - 1] + Fraction(str(seconds)) / info["time_base"]
-    return max(start, bisect_right(boundaries, limit) - 1)
 
 
 def clamp_range(total, start_frame, end_frame, keyframe):

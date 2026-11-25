@@ -13,8 +13,7 @@
     "start_frame",
     "end_frame",
     "max_length",
-    "max_frames",
-    "max_seconds"
+    "max_frames"
   ],
   "outputs": [
     "VIDEO"
