@@ -15,6 +15,8 @@ import os
 from .common import ANY_TYPE, CATEGORY_INPUT, meta_widgets, value_type_widget
 from .trim import MAX_FRAMES
 
+MAX_SECONDS = 86_400.0  # a day: no real clip is longer
+
 
 class _WorkflowIOInputBase:
     CATEGORY = CATEGORY_INPUT
@@ -283,10 +285,14 @@ class WorkflowIOVideoInput(_WorkflowIOInputBase):
     Video Trim: frames counted from 1, inclusive, ``end_frame`` 0 = the last
     frame. The defaults (1, 0) keep the whole video, as before.
 
-    Optional ``max_length`` caps how many frames the trim may keep, for models
-    that take at most so many frames. The app's trim tool should keep the
-    selection within it; if a longer range arrives anyway, ``end_frame`` is
-    pulled in to ``start_frame + max_length - 1``. 0 (the default) = no limit.
+    Optional caps on the trim's length, each 0 (the default) = no limit:
+    ``max_frames`` in frames (for models that take at most so many frames, like
+    upscalers) and ``max_seconds`` in seconds (for models that take at most so
+    long a clip, like video generation), measured on the clip's own timestamps.
+    ``max_length`` is the older name of ``max_frames``, kept so workflows saved
+    with it keep their cap. The app's trim tool should keep the selection within
+    every cap; if a longer range arrives anyway, ``end_frame`` is pulled in to
+    the strictest one.
     """
 
     @classmethod
@@ -311,8 +317,14 @@ class WorkflowIOVideoInput(_WorkflowIOInputBase):
                                       "tooltip": "Trim: last frame kept, inclusive. 0 = last frame of the video. "
                                                  "The app may set it per call."}),
                 "max_length": ("INT", {"default": 0, "min": 0, "max": MAX_FRAMES,
-                                      "tooltip": "Trim: most frames the trim may keep. 0 = no limit. "
-                                                 "A longer range is cut short at its end."}),
+                                      "tooltip": "Deprecated: use max_frames. Kept so saved workflows keep "
+                                                 "their cap; applies like max_frames."}),
+                "max_frames": ("INT", {"default": 0, "min": 0, "max": MAX_FRAMES,
+                                       "tooltip": "Trim: most frames the trim may keep. 0 = no limit. "
+                                                  "A longer range is cut short at its end."}),
+                "max_seconds": ("FLOAT", {"default": 0.0, "min": 0.0, "max": MAX_SECONDS, "step": 0.1,
+                                          "tooltip": "Trim: longest the trim may last, in seconds. 0 = no "
+                                                     "limit. A longer range is cut short at its end."}),
             },
         }
 
@@ -320,7 +332,7 @@ class WorkflowIOVideoInput(_WorkflowIOInputBase):
     RETURN_NAMES = ("video",)
 
     def run(self, param_name, value, accepted_formats="", max_size_mb=100, start_frame=1, end_frame=0,
-            max_length=0, **_meta):
+            max_length=0, max_frames=0, max_seconds=0.0, **_meta):
         import folder_paths
         from comfy_api.input_impl import VideoFromFile
 
@@ -333,7 +345,8 @@ class WorkflowIOVideoInput(_WorkflowIOInputBase):
                 f"WorkflowIOVideoInput '{param_name}': video '{value}' not found in the input directory."
             )
 
-        if start_frame <= 1 and end_frame <= 0 and max_length <= 0:
+        frame_caps = [cap for cap in (max_length, max_frames) if cap > 0]
+        if start_frame <= 1 and end_frame <= 0 and not frame_caps and max_seconds <= 0:
             return (VideoFromFile(path),)  # no trim: the whole video, as before
 
         from . import _video as V
@@ -341,8 +354,10 @@ class WorkflowIOVideoInput(_WorkflowIOInputBase):
         info = V.probe(path)
         total = len(info["pts"])
         start, end, _ = V.clamp_range(total, start_frame, end_frame, 0)
-        if max_length > 0:
-            end = min(end, start + max_length - 1)
+        if frame_caps:
+            end = min(end, start + min(frame_caps) - 1)
+        if max_seconds > 0:
+            end = min(end, V.last_frame_within(info, start, max_seconds))
         if start == 1 and end == total:
             return (VideoFromFile(path),)
         start_time, duration = V.window(info, start - 1, end - 1)

@@ -58,7 +58,9 @@ WorkflowIOFloatInput node "5"  ->  api_config.mappings["strength"] = {
 WorkflowIOVideoInput node "6"  ->  api_config.mappings["video"] = {
     node_id: "6", field: "value", ...,
     start_frame: 1, end_frame: 0,    # trim; (1, 0) = the whole video
-    max_length: 0 }                  # most frames the trim may keep; 0 = no limit
+    max_frames: 0,                   # most frames the trim may keep; 0 = no limit
+    max_seconds: 0,                  # longest the trim may last, in seconds; 0 = no limit
+    max_length: 0 }                  # older name of max_frames; still applies
 
 WorkflowIOImageOutput node "8"  ->  api_config.output_nodes = ["8", ...]
 
@@ -71,9 +73,13 @@ A Video Input's optional `start_frame` / `end_frame` trim the uploaded video
 before it reaches the graph: frames counted from 1, inclusive, `end_frame` 0 =
 the last frame (the same convention as Workflow IO Video Trim). The app sends
 them per call next to `value`; when absent the whole video is used, as before.
-`max_length`, set by the workflow author, caps the trim's length in frames (0 =
-no limit): the app's trim tool should keep the selection within it, and a
-longer range that still arrives is cut short at its end.
+The workflow author can cap the trim's length (0 = no limit): `max_frames` in
+frames, for models limited by frame count (upscalers), and `max_seconds` in
+seconds, for models limited by duration (video generation), measured on the
+clip's own timestamps. `max_length` is the older name of `max_frames`, kept so
+workflows saved with it keep their cap. The app's trim tool should keep the
+selection within every cap set, and a longer range that still arrives is cut
+short at its end by the strictest one.
 
 Because `output_nodes` is emitted as an allowlist (not a rename map), the runner
 returns each output with the exact filename the node saved — no server-side

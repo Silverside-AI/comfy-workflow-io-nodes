@@ -9,6 +9,10 @@ the git log.
 A date here isn't a deploy date: the runner and editor run whatever `main` was
 when their image was built.
 
+## 2026-11-25
+
+- Video Input: optional trim caps `max_frames` (frames) and `max_seconds` (seconds, from the clip's timestamps); the strictest one set wins. `max_length` stays as the older name of `max_frames`, so workflows saved with it keep their cap. ([#PR](PR_URL))
+
 ## 2026-11-23
 
 - Video Input: `max_frame` renamed to `max_length` (same meaning). `max_frame` never reached prod, so no saved workflow uses it. ([#18](https://github.com/Silverside-AI/comfy-workflow-io-nodes/pull/18))
